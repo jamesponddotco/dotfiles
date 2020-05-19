@@ -1,0 +1,40 @@
+#!/bin/bash
+#
+# Script Name: Open
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+# Open a file, path, or URL using xdg-open with the associated application
+# based on the MIME type.
+if [[ -z "${1-}" ]]; then
+  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
+  echo -e "${text_bold}open${text_reset} <file|URL>"
+  exit 1
+elif [[ "${1-}" = *www.youtube.com* ]]; then
+    video_id="$(echo "$1" | sed 's,^.*watch?v=,,g')" # Store the video ID
+    /usr/local/bin/youtube-dl -o '/tmp/youtube-dl/%(id)s.%(ext)s' \
+      --no-call-home "$1"
+    video_file="$(realpath /tmp/youtube-dl/$video_id.*)"
+    vlc "$video_file"
+else
+  xdg-open "$1"
+fi
+
+# All was well.
+exit 0

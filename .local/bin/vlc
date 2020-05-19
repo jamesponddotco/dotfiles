@@ -1,0 +1,34 @@
+#! /bin/bash
+#
+# Script Name: VLC
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+# Run VLC quietly, and allow us to keep using our shell. Display usage if no
+# file is given.
+if [[ -z "${1-}" ]]; then
+  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
+  echo -e "${text_bold}vlc${text_reset} <file>"
+  exit 1
+else
+  /usr/bin/vlc "$1" &> /dev/null &
+fi
+
+# All was well.
+exit 0

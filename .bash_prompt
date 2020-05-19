@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# Bash PS1 Prompt, by Tiaan
+# https://github.com/tiaanduplessis/prompt
+#
+# This is basically the same prompt as the source, written by Tiaan, but with
+# my style guide instead, and some optimization here, and there.
+#
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_reset='\e[0m';
+text_cyan_regular='\e[0;36m';
+text_yellow_regular='\e[0;33m';
+text_white_bold='\e[1;37m';
+
+# Get the status of a Git repository.
+function prompt_git_dirty() {
+
+  # Some variables we will need.
+  status="$(git status 2>&1 | tee)"
+  dirty="$(echo -n $status 2> /dev/null | grep 'modified:' &> /dev/null; echo $?)"
+  up_to_date="$(echo -n $status 2> /dev/null | grep 'working tree clean' &> /dev/null; echo $?)"
+  ahead="$(echo -n $status 2> /dev/null | grep 'Your branch is ahead of' &> /dev/null; echo $?)"
+  parts=''
+
+  if [ "$ahead" == "0" ]; then
+    parts="▲$parts"
+  fi
+
+  if [ "$up_to_date" == "0" ]; then
+    parts="✓$parts"
+  fi
+
+  if [ "$dirty" == "0" ]; then
+    parts="✗$parts"
+  fi
+
+  if [ ! "$parts" == "" ]; then
+    echo " $parts"
+  else
+    echo ''
+  fi
+	
+}
+
+# Get the current branch of a Git repository.
+function prompt_git_branch() {
+
+  git_branch="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
+
+  if [[ -z "$git_branch" ]]; then
+    echo ''
+  else
+    stat="$(prompt_git_dirty)"
+    echo " (${git_branch}${stat})"
+  fi
+
+}
+
+# Export the PS1 prompt.
+export PS1="${text_cyan_regular}●${text_yellow_regular}\`prompt_git_branch\` ${text_white_bold}\W ${text_reset}"

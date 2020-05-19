@@ -1,0 +1,90 @@
+#! /bin/bash
+#
+# Script Name: Compile Aerc
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_green="\033[1;32m"
+text_blue="\033[1;34m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+aerc_checks() {
+
+  # Variables we will need for checks.
+  ubuntu_release_codename="$(lsb_release -cs)"
+  is_aerc_already_installed="$(command -v aerc)"
+
+  # Make sure we are not already compiling aerc.
+  if [[ -f '/tmp/compile-aerc.lock' ]]; then
+    echo -e "${text_bold}${text_red}Oh dear!${text_reset} ${text_red}We are
+already compiling aerc.${text_reset}"
+    echo -e "${text_bold}${text_red}Aborting.${text_reset}"
+    exit 1
+  else
+    touch /tmp/compile-aerc.lock
+  fi
+
+  # Make sure the script is running on Ubuntu 19.10, as I am very forgetful.
+  if [[ "$ubuntu_release_codename" != 'eoan' ]]; then
+    echo -e "${text_bold}${text_red}Oh dear!${text_reset} ${text_red}This \
+script was written for ${text_blue}Ubuntu 19.10${text_reset}${text_red} and \
+has not been tested with other distros or releases.${text_reset}"
+    echo -e "${text_bold}${text_red}Aborting.${text_reset}"
+    exit 1
+  fi
+
+  # Make sure all dependencies are installed if aerc is not already installed.
+  if [[ -z "$is_aerc_already_installed" ]]; then
+    echo -e "${text_bold}${text_blue}First time, I see.${text_reset} Installing
+dependencies..."
+    sudo apt-get install -qq -y build-essential golang-go scdoc notmuch \
+      libnotmuch-dev w3m dante-client catimg > /dev/null
+    echo -e "${text_bold}${text_green}Done.${text_reset}"
+  fi
+
+}
+
+aerc_main() {
+
+  # Clone the latest version of aerc.
+  mkdir /tmp/aerc/
+  git clone https://git.sr.ht/~sircmpwn/aerc /tmp/aerc/
+
+  # Switch to our working directory.
+  cd /tmp/aerc/
+
+  # Compile aerc with notmuch support, and some optimizations for the Zen
+  # platform, since my computer runs Ryzen.
+  GOFLAGS='-tags=notmuch' CFLAGS='-O2 -march=znver1' make
+
+  # Install aerc, and its documentation files.
+  sudo make install
+
+  # Clean up our mess.
+  rm -rf /tmp/aerc/
+  rm /tmp/compile-aerc.lock
+
+}
+
+# Run checks.
+aerc_checks
+
+# Run the script to compile, and install the latest version of aerc.
+aerc_main
+
+# All was well.
+exit 0

@@ -1,0 +1,31 @@
+#!/bin/bash
+#
+# Script Name: Weather
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Store the city inside a variable, but default to the IP address if no city is
+# given as a parameter.
+if [[ -z "${1-}" ]]; then
+  location="$(curl -s -4 'https://icanhazip.com/')"
+else
+  location="$1"
+fi
+
+# Call wttr.in to get the weather.
+printf "\n"
+curl --compressed https://wttr.in/"$location"?QTAF
+printf "\n"
+
+# All was well.
+exit 0

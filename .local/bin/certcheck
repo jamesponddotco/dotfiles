@@ -1,0 +1,92 @@
+#! /bin/bash
+#
+# Script Name: Certcheck
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+certcheck_checks() {
+
+  # Make sure the user input a file.
+  if [[ -z "${2-}" ]]; then
+    certcheck_usage
+  fi
+
+}
+
+certcheck_usage() {
+
+  # Display script usage.
+  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
+  echo -e "${text_bold}certcheck${text_reset} [-s|--start-date <file>] \
+[-e|--end-date <file>] [-c|--common-name <file>] [-h|--help]"
+
+  # Exit with code 1.
+  exit 1
+
+}
+
+certcheck_start_date() {
+
+  # Store the output of openssl inside a variable.
+  local openssl_out="$(openssl x509 -in $2 -noout -startdate | cut -d= -f 2)"
+
+  # Use date to format the output as ISO 8601 compliant.
+  date --date="$openssl_out" --iso-8601
+
+}
+
+certcheck_end_date() {
+
+  # Store the output of openssl inside a variable.
+  local openssl_out="$(openssl x509 -in $2 -noout -enddate | cut -d= -f 2)"
+
+  # Use date to format the output as ISO 8601 compliant.
+  date --date="$openssl_out" --iso-8601
+
+}
+
+certcheck_common_name() {
+
+  # Check for the domain used for the certificate. Only tested with single
+  # domains, and wildcard certificates.
+  openssl x509 -in "$2" -noout -subject -nameopt multiline \
+    | sed -n 's/ *commonName *= //p'
+
+}
+
+# Call our functions.
+case "${1-}" in
+  -s|--start-date)
+    certcheck_checks "$@"
+    certcheck_start_date "$@"
+    ;;
+  -e|--end-date)
+    certcheck_checks "$@"
+    certcheck_end_date "$@"
+    ;;
+  -c|--common-name)
+    certcheck_checks "$@"
+    certcheck_common_name "$@"
+    ;;
+  *)
+    certcheck_usage
+esac
+
+# All was well.
+exit 0
