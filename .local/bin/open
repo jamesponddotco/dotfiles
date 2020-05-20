@@ -26,7 +26,7 @@ if [[ -z "${1-}" ]]; then
   echo -e "${text_bold}${text_red}USAGE:${text_reset}"
   echo -e "${text_bold}open${text_reset} <file|URL>"
   exit 1
-elif [[ "${1-}" = *www.youtube.com* ]]; then
+elif [[ "${1-}" = *www.youtube.com* ]] || [[ "${1-}" = *invidio.us* ]]; then
     video_id="$(echo "$1" | sed 's,^.*watch?v=,,g')" # Store the video ID
     /usr/local/bin/youtube-dl -o '/tmp/youtube-dl/%(id)s.%(ext)s' \
       --no-call-home "$1"
