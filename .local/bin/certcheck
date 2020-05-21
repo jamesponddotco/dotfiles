@@ -44,7 +44,8 @@ certcheck_usage() {
 certcheck_start_date() {
 
   # Store the output of openssl inside a variable.
-  local openssl_out="$(openssl x509 -in $2 -noout -startdate | cut -d= -f 2)"
+  local openssl_out
+  openssl_out="$(openssl x509 -in $2 -noout -startdate | cut -d= -f 2)"
 
   # Use date to format the output as ISO 8601 compliant.
   date --date="$openssl_out" --iso-8601
@@ -54,7 +55,8 @@ certcheck_start_date() {
 certcheck_end_date() {
 
   # Store the output of openssl inside a variable.
-  local openssl_out="$(openssl x509 -in $2 -noout -enddate | cut -d= -f 2)"
+  local openssl_out
+  openssl_out="$(openssl x509 -in $2 -noout -enddate | cut -d= -f 2)"
 
   # Use date to format the output as ISO 8601 compliant.
   date --date="$openssl_out" --iso-8601
