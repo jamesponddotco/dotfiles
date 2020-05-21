@@ -67,6 +67,10 @@ aerc_main() {
   # Switch to our working directory.
   cd /tmp/aerc/
 
+  # Add four unmerged patches to aerc.
+  # https://lists.sr.ht/~sircmpwn/aerc/patches/10692
+  curl -s https://lists.sr.ht/~sircmpwn/aerc/patches/10692/mbox | git am -3
+
   # Compile aerc with notmuch support, and some optimizations for the Zen
   # platform, since my computer runs Ryzen.
   GOFLAGS='-tags=notmuch' CFLAGS='-O2 -march=znver1' make
