@@ -51,6 +51,9 @@ export MANPAGER='/usr/bin/most -s'
 # Define custom colors for buku.
 export BUKU_COLORS='hOghE'
 
+# Set the history file location for ffsend.
+export FFSEND_HISTORY="$HOME/.config/ffsend/history"
+
 # Set the GOPATH environment variable for Go projects, and their binaries.
 export GOPATH="$HOME/.local/share/go"
 export PATH="$PATH:$GOPATH/bin"

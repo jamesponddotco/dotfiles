@@ -43,5 +43,8 @@ alias wget='wget --hsts-file='
 # I am five, sue me.
 alias gimme='wget --hsts-file='
 
+# Make ffsend easier to remember.
+alias upload='ffsend'
+
 # Saner defaults for youtube-dl.
 alias youtube-dl="youtube-dl --force-ipv4 --output '/tmp/youtube-dl/%(title)s.%(ext)s' --restrict-filenames --no-overwrites --no-call-home"
