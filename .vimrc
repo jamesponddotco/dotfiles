@@ -11,10 +11,13 @@ Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
 Plug 'Yggdroot/indentLine'
-Plug 'plasticboy/vim-markdown'
 Plug 'tmux-plugins/vim-tmux'
 Plug 'cespare/vim-toml'
-Plug 'ap/vim-css-color', { 'for': 'css' }
+Plug 'ap/vim-css-color'
+Plug 'dense-analysis/ale'
+Plug 'rhysd/vim-grammarous'
+Plug 'StanAngeloff/php.vim'
+Plug 'fatih/vim-go'
 call plug#end()
 
 " General settings.
@@ -45,6 +48,7 @@ set linespace=5
 set laststatus=2
 
 " Editing settings.
+set spelllang=en
 set tabstop=4
 set softtabstop=0
 set expandtab
@@ -80,10 +84,15 @@ let g:nord_cursor_line_number_background = 1
 let g:nord_italic = 1
 let g:nord_italic_comments = 1
 
-" Settings for vim-markdown.
-let g:vim_markdown_folding_disabled = 1
-let g:vim_markdown_frontmatter = 1
-let g:vim_markdown_new_list_item_indent = 2
+" Settings for ale.
+let g:ale_sh_shfmt_options = '-i 2 -ci'
+let g:ale_gitcommit_gitlint_options = '-C ~/.config/gitlint/default.ini'
+
+" Settings for vim-grammarous.
+let g:grammarous#use_vim_spelllang = 1
+let g:grammarous#default_comments_only_filetypes = {
+      \ '*' : 1, 'help' : 0, 'markdown' : 0,
+      \ }
 
 " Settings for NERDTree.
 let NERDTreeShowHidden = 1
