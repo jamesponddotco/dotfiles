@@ -1,0 +1,45 @@
+# When applied, this commit will…
+
+
+# Why was this change needed?
+
+# Any references to tickets, issues, articles, etc?
+
+# Any co-author?
+
+#
+# DOCUMENTATION
+#
+# The second line, which is the title of your commit, should be limited to 50
+# characters in length because it also becomes the subject line of your email
+# when using git send-email — and lots of text like "[PATCH linux-usb v2 0/13]"
+# can get added to beginning. By the way, since this is a title, do not use a
+# sentence-ending period.
+#
+# The fifth line forward, which is where the body of your commit start, should
+# be hard-wrapped at 72 columns because that is the standard width of an email,
+# and email is an important tool for git.
+#
+# Wrapping your lines like might be annoying, and burdensome, but consider that
+# when working with others, they may not be reading the commit log in the same
+# context as you. The open source community is made of people with all sorts of
+# hardware, and they might not be able to cram as much text into one line as
+# your 4K 16:9 display can.
+#
+#          Format
+#
+# When adding references, and co-authors to the commit body message, the
+# following format should be used.
+#
+# For references, tickets, issues, and whatnot:
+#   * See: https://example.tld/path/to/article/
+#   * Fix: #1
+#
+# For co-authors:
+#   * Co-authored-by: Name <name@example.tld>
+#
+#          Credits
+#
+# Based on a blog post by Drew DeVault:
+#   * https://drewdevault.com/2019/02/25/Using-git-with-discipline.html
+#

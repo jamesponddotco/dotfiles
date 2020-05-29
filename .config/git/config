@@ -1,0 +1,84 @@
+[core]
+  editor       = vim
+  eol          = lf
+  excludesfile = ~/.config/git/ignore
+[gpg]
+  program = gpg
+[sendemail]
+  smtpencryption = ssl
+  smtpserver     = smtp.soverin.net
+  smtpuser       = james@cipher.host
+  smtpserverport = 465
+  smtpdomain     = cipher.host
+  annotate       = yes
+  suppresscc     = self
+  signedoffbycc  = false
+  chainreplyto   = false
+  xmailer        = false
+[user]
+  name       = James Pond
+  email      = james@cipher.host
+  signingkey = EBAF2BD5DEFD9721
+[commit]
+  template = ~/.config/git/message
+  gpgsign  = true
+[format]
+  signoff = true
+[push]
+  default = simple
+[pull]
+  rebase = true
+[color]
+  branch = always
+  diff = always
+  grep = always
+  pager = true
+  showbranch = always
+  status = always
+  ui = always
+[color "branch"]
+  current = "white blue bold"
+  local = "white bold"
+  plain = "white"
+  remote  = "blue bold"
+[color "decorate"]
+  branch = "blue bold"
+  HEAD = "white bold ul"
+  remoteBranch = "blue"
+  stash = "yellow"
+  tag = "cyan bold"
+[color "diff"]
+  commit = "blue bold"
+  frag = "blue bold"
+  func = "white"
+  meta = "cyan"
+  new = "green"
+  old = "red"
+  plain = "white"
+  whitespace = "white reverse"
+[color "diff-highlight"]
+  oldNormal = "red bold"
+  oldHighlight = "white red bold"
+  newNormal = "green bold"
+  newHighlight = "white green bold"
+[color "grep"]
+  context = "white"
+  filename = "white dim ul"
+  function = "white"
+  linenumber = "white dim bold"
+  match = "blue bold"
+  selected = "white"
+  separator = "white dim"
+[color "interactive"]
+  error = "red bold"
+  header = "blue bold"
+  help = "white dim"
+  prompt = "cyan"
+[color "status"]
+  added = "green bold"
+  changed = "yellow bold"
+  header = "white ul"
+  nobranch = "magenta bold ul"
+  unmerged = "blue ul"
+  untracked = "red bold"
+  updated = "cyan bold"
