@@ -72,3 +72,8 @@ fi
 if [[ -f '/usr/share/bash-completion/bash_completion' ]]; then
   source '/usr/share/bash-completion/bash_completion'
 fi
+
+# The gpg-agent expects the GPG_TTY variable to point to the output the tty
+# from where it is invoked.
+GPG_TTY="$(tty)"
+export GPG_TTY
