@@ -45,8 +45,14 @@ export HISTFILESIZE='-1'
 export EDITOR='vim'
 export VISUAL='vim'
 
-# Set most as the pager for manpages, adding some colors to them.
-export MANPAGER='/usr/bin/most -s'
+# Provide colored output for man, following my terminal colorscheme, nord.
+export LESS_TERMCAP_mb=$'\e[01;34m'
+export LESS_TERMCAP_md=$'\e[01;34m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[01;30m'
+export LESS_TERMCAP_se=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[01;34m'
+export LESS_TERMCAP_ue=$'\e[0m'
 
 # Define custom colors for buku.
 export BUKU_COLORS='hOghE'
