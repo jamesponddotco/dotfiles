@@ -1,0 +1,28 @@
+#!/bin/bash
+#
+# Script Name: Git
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Tell git send-email to ask gopass for the SMTP password. This could be just a
+# shell function instead, but I prefer to keep my .bash_aliases clean.
+if [[ "${1-}" = 'send-email' ]]; then
+  /usr/bin/git send-email \
+    --smtp-pass="$(gopass show soverin.net/james@cipher.host)" \
+    "$@"
+else
+  /usr/bin/git "$@"
+fi
+
+# All was well.
+exit 0
