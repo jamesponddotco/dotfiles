@@ -77,7 +77,7 @@ mouse:
 
   url:
     launcher: xdg-open
-    modifiers: Control
+    modifiers: Shift
 
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
