@@ -18,7 +18,7 @@ text_white_bold='\e[1;37m';
 function prompt_git_dirty() {
 
   # Some variables we will need.
-  status="$(git status 2>&1 | tee)"
+  status="$(git status --no-color 2>&1 | tee)"
   dirty="$(echo -n $status 2> /dev/null | grep 'modified:' &> /dev/null; echo $?)"
   up_to_date="$(echo -n $status 2> /dev/null | grep 'working tree clean' &> /dev/null; echo $?)"
   ahead="$(echo -n $status 2> /dev/null | grep 'Your branch is ahead of' &> /dev/null; echo $?)"
@@ -47,7 +47,7 @@ function prompt_git_dirty() {
 # Get the current branch of a Git repository.
 function prompt_git_branch() {
 
-  git_branch="$(git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
+  git_branch="$(git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
 
   if [[ -z "$git_branch" ]]; then
     echo ''
