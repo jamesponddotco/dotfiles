@@ -60,6 +60,9 @@ export BUKU_COLORS='hOghE'
 # Define custom colors for grep.
 export GREP_COLORS='fn=34:mt=01;34:ln=01;30:se=30'
 
+# Keep WeeChat configuration files where they should be.
+export WEECHAT_HOME="$HOME/.config/weechat/"
+
 # Set the history file location for ffsend.
 export FFSEND_HISTORY="$HOME/.config/ffsend/history"
 
