@@ -8,6 +8,12 @@
 # License: European Union Public License 1.2 or later
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
+# TODO:
+# - Change name of the script to build-aerc
+# - Add option to build the latest version from master, or the latest release
+# - Add option to build a .deb package
+# - Add option to upload .deb package to a PPA
+#
 
 # Enable "bash strict mode".
 # http://redsymbol.net/articles/unofficial-bash-strict-mode/
