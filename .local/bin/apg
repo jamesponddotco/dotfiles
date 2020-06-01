@@ -1,0 +1,27 @@
+#!/bin/bash
+#
+# Script Name: Cat
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Add my own defaults to apg(1), to avoid typing so much. I am lazy, sue me.
+if [[ "${1-}" = '--random' ]]; then
+  /usr/lib/apg/apg -a 1 -n 1 -m 64 -M SNCL -c /dev/urandom
+elif [[ "${1-}" = '--diceware' ]]; then
+  /usr/lib/apg/apg -n 1 -m 12 -l -c /dev/urandom | awk '{print $2}'
+else
+  /usr/lib/apg/apg "$@"
+fi
+
+# All was well.
+exit 0
