@@ -1,6 +1,6 @@
 #! /bin/bash
 #
-# Script Name: VLC
+# Script Name: MPV
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Version: 1.0.0
 # Author: James Pond
@@ -20,14 +20,14 @@ text_red="\033[1;31m"
 text_bold="\033[1m"
 text_reset="\033[0m"
 
-# Run VLC quietly, and allow us to keep using our shell. Display usage if no
-# file is given.
+# Run MPV quietly, and in fullscreen, allowing us to keep using our shell.
+# Display usage if no file is given.
 if [[ -z "${1-}" ]]; then
   echo -e "${text_bold}${text_red}USAGE:${text_reset}"
-  echo -e "${text_bold}vlc${text_reset} <file>"
+  echo -e "${text_bold}mpv${text_reset} <file>"
   exit 1
 else
-  /usr/bin/vlc "$1" &> /dev/null &
+  /usr/bin/mpv --fs "$1" &> /dev/null &
 fi
 
 # All was well.
