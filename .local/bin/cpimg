@@ -1,0 +1,41 @@
+#!/bin/bash
+#
+# Script Name: cpimg
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Upload local images to BunnyCDN Storage.
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Get the access key for the BunnyCDN storage zone.
+access_key="$(gopass show bunnycdn.com/cpimgdotsh-key)"
+
+# Create a random filename using a sha256 hash of the original filename, and
+# a random password from apg.
+sha256_hash="$(sha256sum "${1-}" | cut -d ' ' -f 1)"
+random_pass="$(apg -a 1 -n 1 -m 15 -M NCL -c /dev/urandom)"
+image_filename="$sha256_hash$random_pass.${1##*.}"
+
+# Upload the image using cURL.
+curl --tlsv1.2 \
+  --proto =https \
+  --silent \
+  --output /dev/null \
+  --request PUT \
+  --header "AccessKey: $access_key" \
+  --upload-file "${1-}" \
+  "https://storage.bunnycdn.com/cpimgdotsh/$image_filename"
+
+# Output the image URL, which we can pipe to xsel when needed.
+echo "https://i.cpimg.sh/$image_filename"
+
+# All was well.
+exit 0
