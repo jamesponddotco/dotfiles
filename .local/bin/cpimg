@@ -3,7 +3,7 @@
 # Script Name: cpimg
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Upload local images to BunnyCDN Storage.
-# Version: 1.0.0
+# Version: 2.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -15,14 +15,39 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
 # Get the access key for the BunnyCDN storage zone.
 access_key="$(gopass show bunnycdn.com/cpimgdotsh-key)"
 
 # Create a random filename using a sha256 hash of the original filename, and
 # a random password from apg.
-sha256_hash="$(sha256sum "${1-}" | cut -d ' ' -f 1)"
+sha256_hash="$(sha256sum "$1" | cut -d ' ' -f 1)"
 random_pass="$(apg -a 1 -n 1 -m 15 -M NCL -c /dev/urandom)"
 image_filename="$sha256_hash$random_pass.${1##*.}"
+
+# Optimize the image based on its extension before we upload it.
+if [[ "${1##*.}" == 'png' ]]; then
+  oxipng -o max -s -q -Z -t 6 "$1" --out /tmp/"$image_filename"
+elif [[ "${1##*.}" =~ jpe?g ]]; then
+  cjpeg -quality 60 -outfile /tmp/tmp-"$image_filename" "$1"
+  jpegtran -optimize -progressive -outfile /tmp/"$image_filename" \
+    /tmp/tmp-"$image_filename"
+  rm /tmp/tmp-"$image_filename"
+elif [[ "${1##*.}" == 'gif' ]]; then
+  gifsicle -O3 --lossy=80 --no-verbose --no-conserve-memory "$1" \
+    -o /tmp/"$image_filename"
+elif [[ "${1##*.}" == 'svg' ]]; then
+  svgo -q "$1" -o /tmp/"$image_filename"
+else
+  echo -e "${text_bold}${text_red}ERROR:${text_reset}"
+  echo "This file format is not supported."
+  exit 1
+fi
 
 # Upload the image using cURL.
 curl --tlsv1.2 \
@@ -31,11 +56,15 @@ curl --tlsv1.2 \
   --output /dev/null \
   --request PUT \
   --header "AccessKey: $access_key" \
-  --upload-file "${1-}" \
+  --upload-file /tmp/"$image_filename" \
   "https://storage.bunnycdn.com/cpimgdotsh/$image_filename"
 
-# Output the image URL, which we can pipe to xsel when needed.
+# Output the image URL.
 echo "https://i.cpimg.sh/$image_filename"
+
+# Delete our temporary image. I mean, sure, /tmp/ is cleared when you restart
+# your computer, but this take no extra effort. Come on.
+rm /tmp/"$image_filename"
 
 # All was well.
 exit 0
