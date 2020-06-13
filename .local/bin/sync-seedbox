@@ -1,0 +1,45 @@
+#!/bin/bash
+#
+# Script Name: Sync Seedbox
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+# Check to see if I forgot to fill the URL or destination.
+if [[ -z "${1-}" ]] || [[ -z "${2-}" ]]; then
+  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
+  echo -e "${text_bold}sync-seedbox${text_reset} <url> </path/to/destination/>"
+  exit 1
+fi
+
+# Common variables.
+seedbox_url="$1"
+seedbox_username="${seedbox_url%%.*}" # TODO: remove protocol when present
+seedbox_password="$(gopass show misc/seedbox)"
+seedbox_destination="$2" # TODO: check if destination exists
+
+# Create our working directory inside the syncing destination.
+mkdir -p "$seedbox_destination/sync-seedbox/"
+
+# Download everything from the seedbox to our destination.
+wget --user "$seedbox_username" --password "$seedbox_password" \
+  --directory-prefix "$seedbox_destination/sync-seedbox/" \
+  --mirror https://"$seedbox_url"
+
+# All was well.
+exit 0
