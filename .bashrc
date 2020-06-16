@@ -27,6 +27,9 @@ shopt -s checkwinsize
 # Append to the history file, do not overwrite it.
 shopt -s histappend
 
+# Write commands to .bash_history right away.
+export PROMPT_COMMAND='history -a; history -n'
+
 # Do not put duplicate lines or lines starting with space in the history file.
 export HISTCONTROL='ignoreboth'
 
