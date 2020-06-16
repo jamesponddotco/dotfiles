@@ -32,6 +32,9 @@ alias rm='rm -v'
 alias fatdirs='du -Sh | sort -rh | head -n 10'
 alias fatfiles='find . -type f -exec du -Sh {} + | sort -rh | head -n 10'
 
+# Remove all the snap crap from the df output.
+alias df='df -x squashfs'
+
 # Alias version of scurl, from Whonix.
 # https://www.whonix.org/wiki/Secure_Downloads
 alias scurl='curl --tlsv1.2 --proto =https'
