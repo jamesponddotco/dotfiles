@@ -1,0 +1,39 @@
+#!/bin/bash
+#
+# Script Name: Time To First Byte
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+# Find the time to first byte of a URL using cURL.
+if [[ -z "${1-}" ]]; then
+  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
+  echo -e "${text_bold}ttfb${text_reset} <URL>"
+  exit 1
+else
+  curl --tlsv1.2 \
+  --proto =https \
+  --compressed \
+  --silent \
+  --output /dev/null \
+  --write-out "TTFB: %{time_starttransfer} seconds \n" \
+  "$1"
+fi
+
+# All was well.
+exit 0
