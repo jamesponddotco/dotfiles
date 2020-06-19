@@ -34,7 +34,7 @@ export PROMPT_COMMAND='history -a; history -n'
 export HISTCONTROL='ignoreboth'
 
 # Prevent certain commands from being added to the history file.
-export HISTIGNORE='cd:ls:ls -la:pwd:exit:clear:history'
+export HISTIGNORE='cd:ls*:pwd:exit:clear:history*:aerc:vim:htop'
 
 # Add date, and time to bash history.
 export HISTTIMEFORMAT='[%d/%m/%y %T] '
