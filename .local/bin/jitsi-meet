@@ -1,0 +1,21 @@
+#! /bin/bash
+#
+# Script Name: Jitsi Meet
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Open Jitsi Meet in the background, without hogging the terminal.
+/usr/local/bin/jitsi-meet.AppImage &> /dev/null &
+
+# All was well.
+exit 0
