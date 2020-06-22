@@ -1,0 +1,84 @@
+#! /bin/bash
+#
+# Script Name: CLI Font Installer
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 0.0.1
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+cfi_flush_fonts_cache() {
+
+  # Build font information cache files.
+  fc-cache -f "$HOME"/.local/share/fonts/
+
+}
+
+cfi_fix_fonts_permissions() {
+
+  # Fix font permissions, just in case they got messed up.
+  find "$HOME"/.local/share/fonts/ \
+    -type f \
+    -exec chmod 644 {} \; \
+    -exec chown "$USER:$USER" {} \;
+
+}
+
+cfi_install_google_fonts() {
+
+  # Download the latest archive from the Google Fonts Github repository.
+  curl \
+    --tlsv1.3 \
+    --proto =https \
+    --compressed \
+    --silent \
+    --output /tmp/master.tar.gz \
+    --location \
+    "https://codeload.github.com/google/fonts/legacy.tar.gz/master"
+
+  # Create a temporary directory where we can extract the archive.
+  mkdir -p /tmp/google-fonts/
+
+  # Extract the archive inside the directory we just created.
+  tar \
+    --extract \
+    --file \
+    /tmp/master.tar.gz \
+    --directory \
+    /tmp/google-fonts/ \
+    --strip-components=1
+
+  # Move all fonts to the font directory for the user.
+  find /tmp/google-fonts/ \
+    -type f \
+    -name "*.ttf" \
+    -exec cp {} "$HOME"/.local/share/fonts/ \;
+
+  # Clean up our mess.
+  rm -rf /tmp/google-fonts/ /tmp/master.tar.gz
+
+}
+
+cfi_main() {
+
+  # Just run all functions for now, without anything special. Later we can
+  # write this properly, with checks, installation of fonts from user input,
+  # and whatnot.
+  cfi_install_google_fonts
+  cfi_fix_fonts_permissions
+  cfi_flush_fonts_cache
+
+}
+
+# Call our functions.
+cfi_main
+
+# All was well.
+exit 0
