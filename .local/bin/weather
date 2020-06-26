@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Script Name: Weather
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
-# Version: 1.0.0
+# Description: A simple wrapper around wttr.in that tells you the weather.
+# Version: 1.1.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -14,17 +15,15 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Store the city inside a variable, but default to the IP address if no city is
+# Call wttr.in to get the weather, but default to your IP address if no city is
 # given as a parameter.
-if [[ -z "${1-}" ]]; then
-  location="$(curl -s -4 'https://icanhazip.com/')"
-else
-  location="$1"
-fi
-
-# Call wttr.in to get the weather.
 printf "\n"
-curl --compressed https://wttr.in/"$location"?QTAF
+curl \
+  --tlsv1.2 \
+  --proto =https \
+  --compressed \
+  --silent \
+  https://wttr.in/"${1-$(curl -s -4 https://icanhazip.com/)}"?QTAF
 printf "\n"
 
 # All was well.
