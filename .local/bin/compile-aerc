@@ -2,7 +2,7 @@
 #
 # Script Name: Compile Aerc
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
-# Version: 2.0.0
+# Version: 1.1.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -35,7 +35,7 @@ aerc_checks() {
 
   # Make sure we are not already compiling aerc.
   if [[ -f '/tmp/compile-aerc.lock' ]]; then
-    echo -e "${text_bold}${text_red}Oh dear!${text_reset} ${text_red}We are
+    echo -e "${text_bold}${text_red}Oh dear!${text_reset} ${text_red}We are \
 already compiling aerc.${text_reset}"
     echo -e "${text_bold}${text_red}Aborting.${text_reset}"
     exit 1
@@ -45,7 +45,7 @@ already compiling aerc.${text_reset}"
 
   # Make sure all dependencies are installed if aerc is not already installed.
   if [[ -z "$is_aerc_already_installed" ]]; then
-    echo -e "${text_bold}${text_blue}First time, I see.${text_reset} Installing
+    echo -e "${text_bold}${text_blue}First time, huh?${text_reset} Installing \
 dependencies..."
     sudo apt-get install -qq -y build-essential golang-go scdoc notmuch \
       libnotmuch-dev w3m dante-client catimg > /dev/null
