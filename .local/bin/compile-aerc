@@ -2,7 +2,7 @@
 #
 # Script Name: Compile Aerc
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
-# Version: 1.0.0
+# Version: 2.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -30,8 +30,7 @@ text_reset="\033[0m"
 
 aerc_checks() {
 
-  # Variables we will need for checks.
-  ubuntu_release_codename="$(lsb_release -cs)"
+  # Variable we will need for checks.
   is_aerc_already_installed="$(command -v aerc)"
 
   # Make sure we are not already compiling aerc.
@@ -42,15 +41,6 @@ already compiling aerc.${text_reset}"
     exit 1
   else
     touch /tmp/compile-aerc.lock
-  fi
-
-  # Make sure the script is running on Ubuntu 19.10, as I am very forgetful.
-  if [[ "$ubuntu_release_codename" != 'eoan' ]]; then
-    echo -e "${text_bold}${text_red}Oh dear!${text_reset} ${text_red}This \
-script was written for ${text_blue}Ubuntu 19.10${text_reset}${text_red} and \
-has not been tested with other distros or releases.${text_reset}"
-    echo -e "${text_bold}${text_red}Aborting.${text_reset}"
-    exit 1
   fi
 
   # Make sure all dependencies are installed if aerc is not already installed.
