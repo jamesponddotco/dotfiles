@@ -3,7 +3,7 @@
 # Script Name: Generate SSH Key
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: A wrapper around ssh-keygen with (in)sane defaults.
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -45,22 +45,22 @@ numbnuts!${text_reset}"
   exit 1
 fi
 
-# Store a random prefix, sufix, and password inside variables to be used later.
+# Store a random prefix, suffix, and password inside variables to be used later.
 key_prefix="$(apg -a 1 -n 1 -m 8 -d -M NCL)"
-key_sufix="$(apg -n 1 -m 2 -x 4 -l -d | awk '{print $2}' | tr -d '-')"
+key_suffix="$(apg -n 1 -m 2 -x 4 -l -d | awk '{print $2}' | tr -d '-')"
 key_password="$(apg -a 1 -n 1 -m 128 -M SNCL -c /dev/urandom)"
 
 # Generate an SSH key with no comment whatsoever, and other insane defaults.
 ssh-keygen \
   -t ed25519 \
-  -f "$HOME/.ssh/$key_prefix$key_sufix" \
+  -f "$HOME/.ssh/$key_prefix$key_suffix" \
   -C "${1-}" \
   -a 10000 \
   -N "$key_password"
 
 # Save the generated password inside gopass.
 echo "$key_password" \
-  | gopass insert ssh/"$key_prefix$key_sufix"
+  | gopass insert ssh/"$key_prefix$key_suffix"
 
 # All was well.
 exit 0
