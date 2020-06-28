@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+#
+# Script Name: Generate SSH Key
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: A wrapper around ssh-keygen with (in)sane defaults.
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# GIMME COLOURS!
+# Color variables to make our output a little easier on the eyes.
+text_red="\033[1;31m"
+text_bold="\033[1m"
+text_reset="\033[0m"
+
+# Make sure that I do not forget to wrap the comment for the key. This is
+# mostly something to make me laugh when I forget about it.
+if [[ $# -gt 1 ]]; then
+
+  # Download an image of Picard doing a facepalm.
+  curl \
+    --tlsv1.3 \
+    --proto =https \
+    --compressed \
+    --silent \
+    --output /tmp/Y4tW08uQ9eXz.jpg \
+    --location \
+    https://i.cpimg.sh/Y4tW08uQ9eXz.jpg
+
+  # Output a comment to remind me of what I did wrong, and the facepalm image.
+  echo -e "${text_bold}${text_red}Wrap the comment with quotes, \
+numbnuts!${text_reset}"
+  catimg -w 75px /tmp/Y4tW08uQ9eXz.jpg
+
+  # Delete the image, and exit with an error.
+  rm /tmp/Y4tW08uQ9eXz.jpg
+  exit 1
+fi
+
+# Store a random prefix, sufix, and password inside variables to be used later.
+key_prefix="$(apg -a 1 -n 1 -m 8 -d -M NCL)"
+key_sufix="$(apg -n 1 -m 2 -x 4 -l -d | awk '{print $2}' | tr -d '-')"
+key_password="$(apg -a 1 -n 1 -m 128 -M SNCL -c /dev/urandom)"
+
+# Generate an SSH key with no comment whatsoever, and other insane defaults.
+ssh-keygen \
+  -t ed25519 \
+  -f "$HOME/.ssh/$key_prefix$key_sufix" \
+  -C "${1-}" \
+  -a 10000 \
+  -N "$key_password"
+
+# Save the generated password inside gopass.
+echo "$key_password" \
+  | gopass insert ssh/"$key_prefix$key_sufix"
+
+# All was well.
+exit 0
