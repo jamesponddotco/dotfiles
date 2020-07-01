@@ -14,7 +14,7 @@ alias l='ls -CF'
 
 # Misc aliases.
 alias top='htop'
-alias :q='gpg-connect-agent reloadagent /bye; ssh-add -D; exit'
+alias :q='gpg-connect-agent reloadagent /bye; ssh-add -D; sudo -K; exit ;'
 alias edit='vim'
 
 # The "I am bad at typing" aliases.
