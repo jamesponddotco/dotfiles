@@ -3,7 +3,7 @@
 # Script Name: cpimg
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Upload local images to BunnyCDN Storage.
-# Version: 2.1.0
+# Version: 2.1.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -44,7 +44,7 @@ elif [[ "${1##*.}" =~ jpe?g ]]; then
     /tmp/tmp-"$image_filename"."${1##*.}"
   rm /tmp/tmp-"$image_filename"."${1##*.}"
 elif [[ "${1##*.}" == 'gif' ]]; then
-  gifsicle -O3 --lossy=80 --no-verbose --no-conserve-memory "$1" \
+  gifsicle -O3 --lossy=80 --colors 256 --no-verbose --no-conserve-memory "$1" \
     -o /tmp/"$image_filename"."${1##*.}"
 elif [[ "${1##*.}" == 'svg' ]]; then
   svgo -q "$1" -o /tmp/"$image_filename"."${1##*.}"
