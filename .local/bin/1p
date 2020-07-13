@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+#
+# Script Name: 1P
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: 1Password CLI wrapper with PINEntry integration.
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Store the shorthand used by 1Password inside a variable for later use.
+op_shorthand="$(cat $HOME/.op/config | jq -r '.accounts[].shorthand')"
+
+# Grab the session token, if it exists.
+if [[ -f '/tmp/op_token' ]]; then
+  op_token="$(cat /tmp/op_token)"
+else
+  op_token=""
+fi
+
+# Check to see if we are already logged-in. If we are, do nothing, if we are
+# not, use pinentry-curses to send the master password to 1Password CLI.
+if op --session "$op_token" get account >/dev/null 2>&1; then
+  op --session "$op_token" "$@"
+else
+  # Use pinentry-curses to ask for the user's master password, and store it for
+  # later use.
+  op_tty="$(tty)"
+  op_pass="$(printf \
+    'SETDESC Enter your Master Password.\nSETPROMPT \nGETPIN\n' \
+      | pinentry-curses -T "$op_tty" -C UTF-8 \
+      | grep '^D ' \
+      | cut -c 3-)"
+  
+  # Pass the password to 1Password CLI, and store the login token on a
+  # temporary file.
+  printf '%s' "$op_pass" \
+    | op signin -r "$op_shorthand" > /tmp/op_token
+
+  # Call 1Password CLI, and pass whatever we want to it.
+  op --session "$(cat /tmp/op_token)" "$@"
+fi
+
+# All was well.
+exit 0
