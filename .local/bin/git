@@ -18,7 +18,7 @@ IFS=$'\n\t'
 # shell function instead, but I prefer to keep my .bash_aliases clean.
 if [[ "${1-}" = 'send-email' ]]; then
   /usr/bin/git send-email \
-    --smtp-pass="$(gopass show soverin.net/james@cipher.host)" \
+    --smtp-pass="$(1p get item james@cipher.host --fields password)" \
     "$@"
 else
   /usr/bin/git "$@"

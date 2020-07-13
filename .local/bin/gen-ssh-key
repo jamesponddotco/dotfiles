@@ -58,9 +58,16 @@ ssh-keygen \
   -a 10000 \
   -N "$key_password"
 
-# Save the generated password inside gopass.
-echo "$key_password" \
-  | gopass insert ssh/"$key_prefix$key_suffix"
+# Save the generated password inside 1Password.
+base64url_json="$(echo -n \
+  '{"notesPlain":"","password":"'"$key_password"'","passwordHistory":[],"sections":[]}' \
+  | base64 -w 0 \
+  | tr '+/' '-_' \
+  | tr -d '=')"
+
+1p create item password "$base64url_json" \
+  --title "$key_prefix$key_suffix" \
+  --tags "ssh-key"
 
 # All was well.
 exit 0
