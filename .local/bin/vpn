@@ -1,8 +1,0 @@
-# TODO:
-# - Write this. The idea here is to have three different profiles, and use the
-# script to connect to the VPN server related to the profile. Personal, Work
-# (CH), Work (CC).
-#
-# NOTE:
-# - I can use shuf to select a random WireGuard server from my list.
-#   shuf -i 1-10 -n 1 --random-source=/dev/urandom
