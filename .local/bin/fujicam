@@ -16,7 +16,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Enable the kernel module for v4l2loopback, a virtual video device.
-sudo modprobe v4l2loopback exclusive_caps=1 max_buffers=2
+sudo modprobe v4l2loopback exclusive_caps=1 max_buffers=2 card_label="Fujicam"
 
 # Make sure that we do not run into the "Could not claim the USB device" error.
 pkill -f gphoto2
