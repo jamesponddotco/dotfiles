@@ -1,62 +1,33 @@
-#!/bin/bash
-#
-# Bash PS1 Prompt, by Tiaan
-# https://github.com/tiaanduplessis/prompt
-#
-# This is basically the same prompt as the source, written by Tiaan, but with
-# my style guide instead, and some optimization here, and there.
-#
+#!/usr/bin/env bash
 
-# GIMME COLOURS!
-# Color variables to make our output a little easier on the eyes.
-text_reset='\e[0m';
-text_cyan_regular='\e[0;36m';
-text_yellow_regular='\e[0;33m';
-text_white_bold='\e[1;37m';
+prompt_main() {
 
-# Get the status of a Git repository.
-function prompt_git_dirty() {
+  # Make our output a little easier on the eyes with some colors.
+  local c_gray='\[\e[01;30m\]'
+  local c_blue='\[\e[0;34m\]'
+  local c_cyan='\[\e[0;36m\]'
+  local c_reset='\[\e[0m\]'
 
-  # Some variables we will need.
-  status="$(git status --no-color 2>&1 | tee)"
-  dirty="$(echo -n $status 2> /dev/null | grep 'modified:' &> /dev/null; echo $?)"
-  up_to_date="$(echo -n $status 2> /dev/null | grep 'working tree clean' &> /dev/null; echo $?)"
-  ahead="$(echo -n $status 2> /dev/null | grep 'Your branch is ahead of' &> /dev/null; echo $?)"
-  parts=''
+  # In the beginning, everything was gray.
+  PS1="${c_gray}"
 
-  if [ "$ahead" == "0" ]; then
-    parts="▲$parts"
+  # Output the user, and hostname if we are connected over SSH.
+  if [[ -n "$SSH_CLIENT" ]] || [[ -n "$SSH_TTY" ]]; then
+    PS1+="[${c_blue}\u@\h${c_gray}]"
   fi
 
-  if [ "$up_to_date" == "0" ]; then
-    parts="✓$parts"
+  # Output the name of the current directory.
+  PS1+="[${c_blue}\w${c_gray}]"
+
+  # Output the branch name if we are inside a git repository.
+  if [[ -n "$(__git_ps1)" ]]; then
+    PS1+="[${c_cyan}$(__git_ps1 "%s")${c_gray}]"
   fi
 
-  if [ "$dirty" == "0" ]; then
-    parts="✗$parts"
-  fi
-
-  if [ ! "$parts" == "" ]; then
-    echo " $parts"
-  else
-    echo ''
-  fi
-	
-}
-
-# Get the current branch of a Git repository.
-function prompt_git_branch() {
-
-  git_branch="$(git branch --no-color 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/')"
-
-  if [[ -z "$git_branch" ]]; then
-    echo ''
-  else
-    stat="$(prompt_git_dirty)"
-    echo " (${git_branch}${stat})"
-  fi
+  # Reset colors to prevent text overflow.
+  PS1+=" ${c_reset}"
 
 }
 
-# Export the PS1 prompt.
-export PS1="${text_cyan_regular}●${text_yellow_regular}\`prompt_git_branch\` ${text_white_bold}\W ${text_reset}"
+# Call our main function.
+PROMPT_COMMAND='prompt_main'
