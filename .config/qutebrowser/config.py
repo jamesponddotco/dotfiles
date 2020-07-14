@@ -17,11 +17,26 @@ config.bind("q", 'tab-close')
 config.bind("xjn", "set content.javascript.enabled true")
 config.bind("xjf", "set content.javascript.enabled false")
 
+# Aliases to open YouTube links with MPV.
+c.aliases = {
+    "mpv": "spawn -d mpv --fs {url}",
+    "mpv-pip": "spawn -d mpv --ontop --no-border --on-all-workspaces --autofit=1280x720 --geometry=98%:98% {url}"
+}
+
 # Use the same user-agent as Firefox on Linux.
 config.set('content.headers.user_agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0')
 
 # Disable WebGL by default.
 config.set('content.webgl', False)
+
+# Sites should not be allowed to send notifications.
+config.set('content.notifications', False)
+
+# Sites cannot ask for my location.
+config.set('content.geolocation', False)
+
+# Content should not autoplay by default.
+config.set('content.autoplay', False)
 
 # Do not accept third-party cookies.
 config.set('content.cookies.accept', 'no-3rdparty')
@@ -37,11 +52,16 @@ js_whitelist = [
     "https://news.ycombinator.com/*",
     "https://feedbin.com/*",
     "https://languagetool.org/*",
+    "https://languagetoolplus.com/*",
     "https://mail.soverin.net/*",
     "https://my.1password.com/*",
-    "https://*seedbox.io/*",
-    "https://*floatplane.com/*"
+    "https://*.seedbox.io/*",
+    "https://*.floatplane.com/*"
 ]
+
+for site in js_whitelist:
+    with config.pattern(site) as p:
+        p.content.javascript.enabled = True
 
 # Use the Nord colorscheme to match my desktop. Source is over here[1], with a
 # few modifications here, and there.
