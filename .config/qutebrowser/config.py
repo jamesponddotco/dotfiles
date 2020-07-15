@@ -13,8 +13,7 @@ c.auto_save.session = True
 c.tabs.background = True
 
 # Custom key bindings.
-config.bind("q", 'tab-close')
-config.bind("xjn", "set content.javascript.enabled true")
+config.bind("xjt", "set content.javascript.enabled true")
 config.bind("xjf", "set content.javascript.enabled false")
 
 # Aliases to open YouTube links with MPV.
@@ -56,7 +55,10 @@ js_whitelist = [
     "https://mail.soverin.net/*",
     "https://my.1password.com/*",
     "https://*.seedbox.io/*",
-    "https://*.floatplane.com/*"
+    "https://*.floatplane.com/*",
+    "https://*.hetzner.com/*",
+    "https://console.hetzner.cloud/*",
+    "https://robot.your-server.de/*"
 ]
 
 for site in js_whitelist:
