@@ -22,7 +22,7 @@ text_bold="\033[1m"
 text_reset="\033[0m"
 
 # Get the access key for the BunnyCDN storage zone.
-access_key="$(op get item cpimg.sh --fields password)"
+access_key="$(1p get item cpimg.sh --fields password)"
 
 # Create a random filename using a sha256 hash of the original filename, salted
 # with Argon2id. This is overkill, and extremely stupid.

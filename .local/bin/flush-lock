@@ -19,7 +19,7 @@ IFS=$'\n\t'
 gpg-connect-agent reloadagent /bye &> /dev/null
 ssh-add -qD
 sudo -K
-op signout
+1p signout
 
 # Lock the screen. This is handled by GDM3, I think, so it will probably not
 # work everywhere. It does for Regolith Linux, and Ubuntu, though.
