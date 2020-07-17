@@ -17,7 +17,7 @@ IFS=$'\n\t'
 
 # Start qutebrowser, which I installed on /opt/ inside a virtual environment.
 # TODO: start qutebrowser inside a sandbox using firejail, and apparmor.
-/opt/qutebrowser/.venv/bin/python3 -m qutebrowser
+/opt/qutebrowser/.venv/bin/python3 -m qutebrowser "$@"
 
 # All was well.
 exit 0
