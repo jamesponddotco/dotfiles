@@ -3,7 +3,7 @@
 # Script Name: 1P
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: 1Password CLI wrapper with PINEntry integration.
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -23,6 +23,14 @@ if [[ -f '/tmp/op_token' ]]; then
   op_token="$(cat /tmp/op_token)"
 else
   op_token=""
+fi
+
+# Do not try to renew the token when trying to logout.
+if [[ "${1:-}" == 'signout' ]]; then
+  op --session "$op_token" signout || true
+  op signout || true
+  rm -f /tmp/op_token
+  exit 0
 fi
 
 # Check to see if we are already logged-in. If we are, do nothing, if we are
