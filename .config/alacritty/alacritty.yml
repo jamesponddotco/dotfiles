@@ -7,14 +7,12 @@ window:
   padding:
     x: 2
     y: 2
-  decorations: full
+  decorations: none
   startup_mode: Maximized
 
 scrolling:
   history: 10000
   multiplier: 3
-
-tabspaces: 2
 
 draw_bold_text_with_bright_colors: true
 
@@ -62,7 +60,7 @@ colors:
     cyan: "0x8FBCBB"
     white: "0xECEFF4"
 
-visual_bell:
+bell:
   animation: EaseOutExpo
   duration: 0 # disabled
 
@@ -82,7 +80,7 @@ mouse:
 selection:
   semantic_escape_chars: ",│`|:\"' ()[]{}<>"
 
-dynamic_title: true
+window.dynamic_title: true
 
 live_config_reload: true
 
