@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+#
+# Script Name: XSel
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Version: 1.0.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Enable "bash strict mode".
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -euo pipefail
+IFS=$'\n\t'
+
+# Color variables to make our output a little easier on the eyes. Respect
+# NO_COLOR, as I am not always into using colors.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  readonly c_blue='\033[0;34m'
+  readonly c_green='\033[0;32m'
+  readonly c_bold='\033[1m'
+  readonly c_reset='\033[0m'
+fi
+
+# If I am copying something to the clipboard with xsel through a pipe, copy,
+# wait for 5 seconds, and then clear the entire clipboard. Useful when copying
+# password through 1P, or other sensitive data.\
+if [[ "${1-}" == '-ubi' ]]; then
+  /usr/bin/xsel -bi
+  echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Data copied to \
+clipboard."
+  echo -e "${c_blue:-}${c_bold:-}[INFO]${c_reset:-} Clearing clipboard in \
+${2:-5} seconds."
+  sleep "${2:-5}"
+  echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Clipboard cleared."
+  /usr/bin/xsel -cbp --display :1
+else
+  /usr/bin/xsel "$@"
+fi
+
+# All was well.
+exit 0
