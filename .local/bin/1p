@@ -16,7 +16,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Store the shorthand used by 1Password inside a variable for later use.
-op_shorthand="$(cat $HOME/.op/config | jq -r '.accounts[].shorthand')"
+op_shorthand="$(jq -r '.accounts[].shorthand' "$HOME"/.op/config)"
 
 # Grab the session token, if it exists.
 if [[ -f '/tmp/op_token' ]]; then
@@ -53,7 +53,7 @@ else
     | op signin -r "$op_shorthand" > /tmp/op_token
 
   # Call 1Password CLI, and pass whatever we want to it.
-  op --session "$(cat /tmp/op_token)" "$@"
+  op --session "$(cat /tmp/op_token)" --cache "$@"
 fi
 
 # All was well.
