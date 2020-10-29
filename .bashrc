@@ -15,6 +15,16 @@ fi
 # Use vi key bindings for bash instead of emacs ones.
 set -o vi
 
+# Use our custom bash prompt.
+if [[ -f "$HOME/.bash_prompt" ]]; then
+  source "$HOME/.bash_prompt"
+fi
+
+# Use our custom aliases for bash.
+if [[ -f "$HOME/.bash_aliases" ]]; then
+  source "$HOME/.bash_aliases"
+fi
+
 # Checks that a command found in the hash table exists before trying to
 # execute. If a hashed command no longer exists, a normal path search is
 # performed.
@@ -27,8 +37,13 @@ shopt -s checkwinsize
 # Append to the history file, do not overwrite it.
 shopt -s histappend
 
+# Shorten the lenght of the prompt if running Bash 4.0.0 or greater.
+if [[ "${BASH_VERSINFO:-0}" -ge 4 ]]; then
+  export PROMPT_DIRTRIM='3'
+fi
+
 # Write commands to .bash_history right away.
-export PROMPT_COMMAND='history -a; history -n'
+export PROMPT_COMMAND="history -a; history -n; $PROMPT_COMMAND"
 
 # Do not put duplicate lines or lines starting with space in the history file.
 export HISTCONTROL='ignoreboth'
@@ -72,16 +87,6 @@ export FFSEND_HISTORY="$HOME/.config/ffsend/history"
 # Set the GOPATH environment variable for Go projects, and their binaries.
 export GOPATH="$HOME/.local/share/go"
 export PATH="$PATH:$GOPATH/bin"
-
-# Use our custom bash prompt.
-if [[ -f "$HOME/.bash_prompt" ]]; then
-  source "$HOME/.bash_prompt"
-fi
-
-# Use our custom aliases for bash.
-if [[ -f "$HOME/.bash_aliases" ]]; then
-  source "$HOME/.bash_aliases"
-fi
 
 # Enable programmable completion features.
 if [[ -f '/usr/share/bash-completion/bash_completion' ]]; then
