@@ -6,3 +6,12 @@ matches:
 
   - trigger: ";shrug"
     replace: "¯\\_(ツ)_/¯"
+
+  - trigger: ";fliptable"
+    replace: "(╯°□°）╯︵ ┻━┻"
+
+  - trigger: ";>"
+    replace: "→"
+
+  - trigger: ";<"
+    replace: "←"
