@@ -29,7 +29,7 @@ fi
 
 # Common variables.
 seedbox_url="$1"
-seedbox_username="${seedbox_url%%.*}" # TODO: remove protocol when present
+seedbox_username="$(1p get item Seedbox --fields username)"
 seedbox_password="$(1p get item Seedbox --fields password)"
 seedbox_destination="$2" # TODO: check if destination exists
 
