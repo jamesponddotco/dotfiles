@@ -58,7 +58,8 @@ js_whitelist = [
     "https://*.floatplane.com/*",
     "https://*.hetzner.com/*",
     "https://console.hetzner.cloud/*",
-    "https://robot.your-server.de/*"
+    "https://robot.your-server.de/*",
+    "https://www.justwatch.com/*"
 ]
 
 for site in js_whitelist:
