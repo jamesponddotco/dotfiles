@@ -63,6 +63,11 @@ aerc_main() {
   # Switch to our working directory.
   cd /tmp/aerc/
 
+  # Add patch to sign outgoing emails. This is temporary, just until this is
+  # merged into master.
+  curl -s 'https://lists.sr.ht/~sircmpwn/aerc/patches/14523/mbox' \
+    | git am -3
+
   # Compile aerc with notmuch support, and some optimizations for the Zen
   # platform, since my computer runs Ryzen.
   GOFLAGS='-tags=notmuch' CFLAGS='-O2 -march=znver1' make
