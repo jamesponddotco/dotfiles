@@ -16,7 +16,7 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Store the shorthand used by 1Password inside a variable for later use.
-op_shorthand="$(jq -r '.accounts[].shorthand' "$HOME"/.op/config)"
+op_shorthand="$(jq -r '.accounts[].shorthand' "$HOME"/.config/op/config)"
 
 # Grab the session token, if it exists.
 if [[ -f '/tmp/op_token' ]]; then
