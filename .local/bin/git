@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
-# Script Name: Git
+# Script Name: Git Wrapper
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Wrap a few of my common git(1) uses into new commands.
 # Version: 1.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
@@ -14,13 +15,26 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Tell git send-email to ask gopass for the SMTP password. This could be just a
-# shell function instead, but I prefer to keep my .bash_aliases clean.
-if [[ "${1-}" = 'send-email' ]]; then
-  /usr/bin/git send-email \
-    --smtp-pass="$(1p get item james@cipher.host --fields password)" \
+# Use if statements to include a few new commands. This can be changed to case
+# later, if more commands are included.
+if [[ "${1:-}" == 'send-email' ]]; then
+  # Tell git send-email to ask pass(1) for the SMTP password.
+  /usr/bin/git send-email --smtp-pass="$(pass show shared/james@cipher.host)" \
     "$@"
+elif [[ "${1:-}" == 'create-repo' ]]; then
+  # Create a new git(1) repository using the correct settings.
+  readonly git_repo_path="$HOME/git/${2:-}/${3:-}"
+  /usr/bin/git init "$git_repo_path"
+    if [[ "${2:-}" == 'cloudcraft' ]]; then
+      # If this is a repository for a Cloudcraft project, use my company email
+      # and signing key instead of my personal one.
+      /usr/bin/git --git-dir="$git_repo_path/.git" config user.email \
+        'james@cloudcraft.co'
+      /usr/bin/git --git-dir="$git_repo_path/.git" config user.signingkey \
+        '3FDD912B794AE586'
+    fi
 else
+  # If we are just using regular git(1) commands, continue.
   /usr/bin/git "$@"
 fi
 
