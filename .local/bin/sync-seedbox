@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Script Name: Sync Seedbox
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Download everything from my Seedbox to a local drive.
 # Version: 1.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
@@ -14,32 +15,103 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# GIMME COLOURS!
-# Color variables to make our output a little easier on the eyes.
-text_red="\033[1;31m"
-text_bold="\033[1m"
-text_reset="\033[0m"
+# Force all output to use the simplest locale.
+readonly LC_ALL='C'
 
-# Check to see if I forgot to fill the URL or destination.
-if [[ -z "${1-}" ]] || [[ -z "${2-}" ]]; then
-  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
-  echo -e "${text_bold}sync-seedbox${text_reset} <url> </path/to/destination/>"
-  exit 1
+# Color variables to make our output a little easier on the eyes. Respect
+# NO_COLOR, in case I do not want any.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  readonly c_red='\033[0;31m'
+  readonly c_blue='\033[0;34m'
+  readonly c_green='\033[0;32m'
+  readonly c_bold='\033[1m'
+  readonly c_reset='\033[0m'
 fi
 
-# Common variables.
-seedbox_url="$1"
-seedbox_username="$(1p get item Seedbox --fields username)"
-seedbox_password="$(1p get item Seedbox --fields password)"
-seedbox_destination="$2" # TODO: check if destination exists
+seedbox_usage() {
 
-# Create our working directory inside the syncing destination.
-mkdir -p "$seedbox_destination/sync-seedbox/"
+  # Display usage information when necessary.
+  echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
+  echo -e "${c_bold:-}sync-seedbox${c_reset:-} <url> </path/to/destination/>"
 
-# Download everything from the seedbox to our destination.
-wget --user "$seedbox_username" --password "$seedbox_password" \
-  --directory-prefix "$seedbox_destination/sync-seedbox/" \
-  --mirror https://"$seedbox_url"
+}
+
+seedbox_checks() {
+
+  # Store the URL and destination in their own variables.
+  readonly seedbox_url="${1:-}"
+  readonly sync_destination="${2:-}"
+
+  # Check to see if I forgot the URL or destination arguments.
+  if [[ -z "$seedbox_url" ]] || [[ -z "$sync_destination" ]]; then
+    seedbox_usage
+    exit 5
+  fi
+
+  # Check to see if we are running a sync operation already.
+  if [[ -f '/tmp/sync-seedbox.lock' ]]; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Operation already in \
+progress"
+    exit 114
+  else
+    touch /tmp/sync-seedbox.lock
+  fi
+
+  # Check to see if I am connected to any of my WireGuard servers.
+  if nmcli connection show --active | grep --quiet 'wireguard'; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Connection refused. \
+Please disconnect the WireGuard VPN and try again."
+    exit 111
+  fi
+
+  # Check to see if the URL I used is valid. To be valid it must include the
+  # /files/ subdirectory and return 401 for a cURL call without credentials.
+  readonly http_response="$(curl \
+    --url "$seedbox_url" \
+    --proto '=https' \
+    --tlsv1.3 \
+    --compressed \
+    --silent \
+    --header \
+    --write-out '%{http_code}' \
+    --output '/dev/null')"
+  if ! [[ "$http_response" == 401 ]] \
+    || echo "$seedbox_url" | grep --quiet 'files'; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Invalid URL."
+    seedbox_usage
+    exit 22
+  fi
+
+  # Check to see if the destination is valid.
+  if ! [[ -d "$sync_destination" ]]; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} No such directory."
+    exit 2
+  fi
+
+}
+
+seedbox_main() {
+
+  # Get the Seedbox credentials from pass(1).
+  readonly seedbox_username="$(pass show seedbox/username)"
+  readonly seedbox_password="$(pass show seedbox/password)"
+
+  # Create a directory inside the destination to store the files.
+  mkdir --parents "$sync_destination/sync-seedbox/"
+
+  # Download everything from the Seedbox using good old wget(1).
+  echo -e "${c_blue:-}${c_bold:-}[INFO]${c_reset:-} Downloading all files \
+from the Seedbox to a local drive. Please wait..."
+  wget --user "$seedbox_username" --password "$seedbox_password" \
+    --directory-prefix "$sync_destination/sync-seedbox/" \
+    --mirror "$seedbox_url"
+  echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Done."
+
+}
+
+# Call our functions.
+seedbox_checks "$@"
+seedbox_main "$@"
 
 # All was well.
 exit 0
