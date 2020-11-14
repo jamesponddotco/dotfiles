@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Script Name: cpimg
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
@@ -15,70 +15,32 @@
 set -euo pipefail
 IFS=$'\n\t'
 
-# Force all output to use the simplest locale. Fix issues with macOS.
+# Force all output to use the simplest locale.
 readonly LC_ALL='C'
 
-# Color variables to make our output a little easier on the eyes. Respect
-# NO_COLOR, in case the user do not want any.
-if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
-  readonly c_red='\033[0;31m'
-  readonly c_blue='\033[0;34m'
-  readonly c_green='\033[0;32m'
-  readonly c_bold='\033[1m'
-  readonly c_reset='\033[0m'
-fi
+# Get the access key for BunnyCDN from the local password vault.
+readonly access_key="$(pass show cpimg/access-key)"
 
-# Get the access key for the BunnyCDN storage zone.
-access_key="$(1p get item cpimg.sh --fields password)"
+# Generate a random filename with 12 characters.
+readonly image_filename="$(head --bytes 12 \
+  < <(tr --delete --complement '[:alnum:]' < /dev/urandom))"
 
-# Create a random filename as if we were creating a random password.
-read -r -n 12 image_filename < <(tr -dc '[:alnum:]' < /dev/urandom)
+# Optimize the image using IMG Diet.
+imgdiet --input "$1" > /dev/null 2>&1
 
-# Make sure the filename does not collide with an existing one on the server.
-http_code="$(curl \
-  --compressed \
-  -sIw '%{http_code}' \
-  -o /dev/null \
-  https://i.cpimg.sh/"$image_filename"."${1##*.}")"
-
-while [[ "$http_code" == '200' ]]; do
-  read -r -n 12 image_filename < <(tr -dc '[:alnum:]' < /dev/urandom)
-done
-
-# Optimize the image based on its extension before we upload it.
-if [[ "${1##*.}" == 'png' ]]; then
-  oxipng -o max -s -q -Z -t 6 "$1" --out /tmp/"$image_filename"."${1##*.}"
-elif [[ "${1##*.}" =~ jpe?g ]]; then
-  cjpeg -quality 60 -outfile /tmp/tmp-"$image_filename"."${1##*.}" "$1"
-  jpegtran -optimize -progressive -outfile /tmp/"$image_filename"."${1##*.}" \
-    /tmp/tmp-"$image_filename"."${1##*.}"
-  rm /tmp/tmp-"$image_filename"."${1##*.}"
-elif [[ "${1##*.}" == 'gif' ]]; then
-  gifsicle -O3 --lossy=90 --use-colormap web --no-verbose --no-warnings \
-    --no-conserve-memory "$1" -o /tmp/"$image_filename"."${1##*.}"
-elif [[ "${1##*.}" == 'svg' ]]; then
-  svgo -q "$1" -o /tmp/"$image_filename"."${1##*.}"
-else
-  echo -e "${text_bold}${text_red}ERROR:${text_reset}"
-  echo "This file format is not supported."
-  exit 1
-fi
-
-# Upload the image using cURL.
-curl --tlsv1.2 \
-  --proto =https \
+# Upload the image to the BunnyCDN storage zone using cURL.
+curl \
+  --url "https://storage.bunnycdn.com/cpimgdotsh/$image_filename.${1##*.}" \
+  --tlsv1.2 \
+  --proto '=https' \
   --silent \
-  --output /dev/null \
+  --output '/dev/null' \
   --request PUT \
   --header "AccessKey: $access_key" \
-  --upload-file /tmp/"$image_filename"."${1##*.}" \
-  "https://storage.bunnycdn.com/cpimgdotsh/$image_filename.${1##*.}"
+  --upload-file "$1"
 
 # Output the image URL.
 echo "https://i.cpimg.sh/$image_filename.${1##*.}"
-
-# Delete our temporary image.
-rm /tmp/"$image_filename"."${1##*.}"
 
 # All was well.
 exit 0
