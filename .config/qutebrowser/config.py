@@ -12,6 +12,9 @@ c.auto_save.session = True
 # Open new tabs in the background.
 c.tabs.background = True
 
+# Define the homepage.
+config.set('url.start_pages', 'https://feedbin.com/')
+
 # Custom key bindings.
 config.bind("xjt", "set content.javascript.enabled true")
 config.bind("xjf", "set content.javascript.enabled false")
@@ -65,6 +68,9 @@ js_whitelist = [
 for site in js_whitelist:
     with config.pattern(site) as p:
         p.content.javascript.enabled = True
+
+# Disable the loading of settings set via the GUI.
+config.load_autoconfig(False)
 
 # Use the Nord colorscheme to match my desktop. Source is over here[1], with a
 # few modifications here, and there.
