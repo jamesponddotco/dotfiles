@@ -3,7 +3,7 @@
 # Script Name: Sync Seedbox
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Download everything from my Seedbox to a local drive.
-# Version: 1.0.0
+# Version: 1.0.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -72,11 +72,10 @@ Please disconnect the WireGuard VPN and try again."
     --tlsv1.3 \
     --compressed \
     --silent \
-    --header \
     --write-out '%{http_code}' \
     --output '/dev/null')"
   if ! [[ "$http_response" == 401 ]] \
-    || echo "$seedbox_url" | grep --quiet 'files'; then
+    || ! echo "$seedbox_url" | grep --quiet 'files'; then
     echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Invalid URL."
     seedbox_usage
     exit 22
