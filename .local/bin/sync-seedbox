@@ -54,7 +54,7 @@ seedbox_checks() {
 progress"
     exit 114
   else
-    touch /tmp/sync-seedbox.lock
+    touch '/tmp/sync-seedbox.lock'
   fi
 
   # Check to see if I am connected to any of my WireGuard servers.
@@ -105,6 +105,9 @@ from the Seedbox to a local drive. Please wait..."
     --directory-prefix "$sync_destination/sync-seedbox/" \
     --mirror "$seedbox_url"
   echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Done."
+
+  # Remove the lock file when we are done.
+  rm --force '/tmp/sync-seedbox.lock'
 
 }
 
