@@ -103,7 +103,7 @@ seedbox_main() {
 from the Seedbox to a local drive. Please wait..."
   wget --user "$seedbox_username" --password "$seedbox_password" \
     --directory-prefix "$sync_destination/sync-seedbox/" \
-    --mirror "$seedbox_url"
+    --mirror "$seedbox_url" --quiet
   echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Done."
 
   # Remove the lock file when we are done.
