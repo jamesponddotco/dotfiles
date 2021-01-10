@@ -79,6 +79,11 @@ set tm=500
 set colorcolumn=80 textwidth=79
 highlight ColorColumn ctermbg=7
 
+" Editing settings per filetype.
+autocmd FileType markdown setlocal cc=73 tw=72
+autocmd FileType gitcommit setlocal cc=73 tw=72
+autocmd FileType mail setlocal cc=73 tw=72 noautoindent
+
 " Settings for the Nord colorscheme.
 let g:nord_cursor_line_number_background = 1
 let g:nord_italic = 1
@@ -118,7 +123,7 @@ let g:lightline = {
       \   ]
       \ },
       \ 'component_function': {
-      \   'fugitive': 'LightlineFugitive',
+      \   'fugitive': 'FugitiveHead',
       \   'readonly': 'LightlineReadonly',
       \   'modified': 'LightlineModified',
       \   'filename': 'LightlineFilename'
