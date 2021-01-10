@@ -2,6 +2,7 @@
 #
 # Script Name: Certcheck
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Get basic information out of an SSL certificate.
 # Version: 1.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
@@ -9,85 +10,93 @@
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Enable "bash strict mode".
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
 IFS=$'\n\t'
 
-# GIMME COLOURS!
-# Color variables to make our output a little easier on the eyes.
-text_red="\033[1;31m"
-text_bold="\033[1m"
-text_reset="\033[0m"
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
 
-certcheck_checks() {
+# Save the name of the script inside a readonly variable.
+whoami="${0##*/}"
+readonly whoami
 
-  # Make sure the user input a file.
-  if [[ -z "${2-}" ]]; then
-    certcheck_usage
+# Color variables to make our output a little easier on the eyes. Respect
+# NO_COLOR, in case the user does not want any.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  c_blue='\033[0;34m'
+  c_bold='\033[1m'
+  c_reset='\033[0m'
+  readonly c_blue
+  readonly c_bold
+  readonly c_reset
+fi
+
+display_usage() {
+
+  # Display usage information when necessary.
+  echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-s|--start-date </path/to/cert/>] \
+[-e|--end-date </path/to/cert/>] [-c|--common-name </path/to/cert>] [-h|--help]"
+
+}
+
+run_checks() {
+
+  # Ensures the user provided a path to the certificate file.
+  if [[ -z "${2:-}" ]]; then
+    display_usage
+    exit 22
   fi
 
 }
 
-certcheck_usage() {
+cert_start_date() {
 
-  # Display script usage.
-  echo -e "${text_bold}${text_red}USAGE:${text_reset}"
-  echo -e "${text_bold}certcheck${text_reset} [-s|--start-date <file>] \
-[-e|--end-date <file>] [-c|--common-name <file>] [-h|--help]"
-
-  # Exit with code 1.
-  exit 1
+  # Display the start date of an SSL certificate in ISO 8601 format.
+  openssl x509 -in "${2:-}" -noout -startdate \
+    | cut --delimiter '=' --fields 2 \
+    | date --iso-8601='seconds' --file -
 
 }
 
-certcheck_start_date() {
+cert_end_date() {
 
-  # Store the output of openssl inside a variable.
-  local openssl_out
-  openssl_out="$(openssl x509 -in $2 -noout -startdate | cut -d= -f 2)"
-
-  # Use date to format the output as ISO 8601 compliant.
-  date --date="$openssl_out" --iso-8601
+  # Display the start date of an SSL certificate in ISO 8601 format.
+  openssl x509 -in "${2:-}" -noout -enddate \
+    | cut --delimiter '=' --fields 2 \
+    | date --iso-8601='seconds' --file -
 
 }
 
-certcheck_end_date() {
+cert_common_name() {
 
-  # Store the output of openssl inside a variable.
-  local openssl_out
-  openssl_out="$(openssl x509 -in $2 -noout -enddate | cut -d= -f 2)"
-
-  # Use date to format the output as ISO 8601 compliant.
-  date --date="$openssl_out" --iso-8601
-
-}
-
-certcheck_common_name() {
-
-  # Check for the domain used for the certificate. Only tested with single
-  # domains, and wildcard certificates.
-  openssl x509 -in "$2" -noout -subject -nameopt multiline \
-    | sed -n 's/ *commonName *= //p'
+  # Display the domain the certificate was registered for. Only tested with
+  # single domains and wildcard certificates, but should work with multiple
+  # domain names as well.
+  openssl x509 -in "${2:-}" -noout -subject -nameopt multiline \
+    | awk '/commonName/ {print $3}'
 
 }
 
 # Call our functions.
 case "${1-}" in
   -s|--start-date)
-    certcheck_checks "$@"
-    certcheck_start_date "$@"
+    run_checks "$@"
+    cert_start_date "$@"
     ;;
   -e|--end-date)
-    certcheck_checks "$@"
-    certcheck_end_date "$@"
+    run_checks "$@"
+    cert_end_date "$@"
     ;;
   -c|--common-name)
-    certcheck_checks "$@"
-    certcheck_common_name "$@"
+    run_checks "$@"
+    cert_common_name "$@"
     ;;
   *)
-    certcheck_usage
+    display_usage
+    exit 22
 esac
 
 # All was well.

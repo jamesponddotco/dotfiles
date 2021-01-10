@@ -3,32 +3,34 @@
 # Script Name: cpimg
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Upload local images to BunnyCDN Storage.
-# Version: 3.0.0
+# Version: 0.1.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Enable "bash strict mode".
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
 IFS=$'\n\t'
 
 # Force all output to use the simplest locale.
-readonly LC_ALL='C'
+LC_ALL='C'
+readonly LC_ALL
 
-# Get the access key for BunnyCDN from the local password vault.
-readonly access_key="$(pass show cpimg/access-key)"
+# Get the access key for BunnyCDN from the local password store.
+access_key="$(pass show cpimg/access-key)"
+readonly access_key
 
-# Generate a random filename with 12 characters.
-readonly image_filename="$(head --bytes 12 \
+# Generate a random filename to prevent name collisions.
+image_filename="$(head --bytes 12 \
   < <(tr --delete --complement '[:alnum:]' < /dev/urandom))"
+readonly image_filename
 
 # Optimize the image using IMG Diet.
 imgdiet --input "$1" > /dev/null 2>&1
 
-# Upload the image to the BunnyCDN storage zone using cURL.
+# Upload the image to the BunnyCDN storage zone.
 curl \
   --url "https://storage.bunnycdn.com/cpimgdotsh/$image_filename.${1##*.}" \
   --tlsv1.2 \
@@ -40,7 +42,12 @@ curl \
   --upload-file "$1"
 
 # Output the image URL.
-echo "https://i.cpimg.sh/$image_filename.${1##*.}"
+if [[ "${2:-}" =~ ^(-c$|--clipboard$) ]]; then
+  echo -n "https://i.cpimg.sh/$image_filename.${1##*.}" \
+    | xsel --clipboard --input
+else
+  echo "https://i.cpimg.sh/$image_filename.${1##*.}"
+fi
 
 # All was well.
 exit 0

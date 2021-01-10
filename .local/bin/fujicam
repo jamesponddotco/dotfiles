@@ -25,8 +25,8 @@ pkill -f gphoto2 || true
 # then feed the output to ffmpeg, which in turn uses v4l2loopback to create,
 # and display a webcam.
 gphoto2 --stdout --capture-movie \
-  | ffmpeg -i - -vcodec rawvideo -pix_fmt yuv420p -threads 0 \
-    -video_size 1280x720 -f v4l2 /dev/video0
+  | ffmpeg -i - -vcodec 'rawvideo' -pix_fmt 'yuv420p' -video_size '1024x768' \
+  -f 'v4l2' '/dev/video0'
 
 # All was well.
 exit 0

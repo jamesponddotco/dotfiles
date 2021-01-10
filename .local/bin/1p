@@ -3,57 +3,73 @@
 # Script Name: 1P
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: 1Password CLI wrapper with PINEntry integration.
-# Version: 1.0.1
+# Version: 0.1.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Enable "bash strict mode".
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
 IFS=$'\n\t'
 
-# Store the shorthand used by 1Password inside a variable for later use.
-op_shorthand="$(jq -r '.accounts[].shorthand' "$HOME"/.config/op/config)"
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
 
-# Grab the session token, if it exists.
-if [[ -f '/tmp/op_token' ]]; then
-  op_token="$(cat /tmp/op_token)"
+# Save the name and ID of the user running this script.
+user_login="$(id --user --name)"
+user_id="$(id --user)"
+readonly user_login
+readonly user_id
+
+# Store the account shorthand used by 1Password inside a readonly variable for
+# later use.
+account_shorthand="$(jq --raw-output '.accounts[].shorthand' \
+  "/home/$user_login/.config/op/config")"
+readonly account_shorthand
+
+# Grab the session token, if it exists. Otherwise, just create a placeholder
+# file with proper permissions.
+session_token_file="/tmp/user/$user_id/op-session-token"
+readonly session_token_file
+if [[ -f "$session_token_file" ]]; then
+  session_token="$(cat "$session_token_file")"
 else
-  op_token=""
+  install --mode 600 '/dev/null' "/tmp/user/$user_id/op-session-token"
 fi
 
-# Do not try to renew the token when trying to logout.
+# Do not try to renew the token if we are logging out.
 if [[ "${1:-}" == 'signout' ]]; then
-  op --session "$op_token" signout || true
-  op signout || true
-  rm -f /tmp/op_token
+  op --session "${session_token:-}" signout
+  rm --force "$session_token_file"
   exit 0
 fi
 
-# Check to see if we are already logged-in. If we are, do nothing, if we are
-# not, use pinentry-curses to send the master password to 1Password CLI.
-if op --session "$op_token" get account >/dev/null 2>&1; then
-  op --session "$op_token" "$@"
+# Check to see if we are already logged-in. If we are, do nothing, but if we
+# are not, use pinentry-curses to send the master password to 1Password CLI.
+if op --session "${session_token:-}" get account >/dev/null 2>&1; then
+  op --session "${session_token:-}" --cache "$@"
 else
-  # Use pinentry-curses to ask for the user's master password, and store it for
-  # later use.
+  # Use pinentry-curses to ask for the user's master password.
   op_tty="$(tty)"
   op_pass="$(printf \
     'SETDESC Enter your Master Password.\nSETPROMPT \nGETPIN\n' \
-      | pinentry-curses -T "$op_tty" -C UTF-8 \
+      | pinentry-curses --ttyname "$op_tty" --lc-ctype 'UTF-8' \
       | grep '^D ' \
-      | cut -c 3-)"
+      | cut --characters 3-)"
+  readonly op_tty
+  readonly op_pass
   
-  # Pass the password to 1Password CLI, and store the login token on a
-  # temporary file.
+  # Feed the password to 1Password CLI and store the login token on the file we
+  # created earlier. With libpam-tmpdir and chmod 600, this should be safeish.
   printf '%s' "$op_pass" \
-    | op signin -r "$op_shorthand" > /tmp/op_token
+    | op signin --raw "${account_shorthand:-}" > "$session_token_file"
 
-  # Call 1Password CLI, and pass whatever we want to it.
-  op --session "$(cat /tmp/op_token)" --cache "$@"
+  # Call 1Password CLI and pass whatever we want to it.
+  session_token="$(cat "$session_token_file")"
+  op --session "${session_token:-}" --cache "$@"
 fi
 
 # All was well.
