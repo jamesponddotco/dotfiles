@@ -50,4 +50,4 @@ alias gimme='wget --hsts-file='
 alias upload='ffsend'
 
 # Saner defaults for youtube-dl.
-alias youtube-dl="youtube-dl --force-ipv4 --output '/tmp/youtube-dl/%(title)s.%(ext)s' --restrict-filenames --no-overwrites --no-call-home"
+alias youtube-dl="youtube-dl --force-ipv4 --output '/home/james/videos/youtube-dl/%(title)s.%(ext)s' --restrict-filenames --no-overwrites --no-call-home"
