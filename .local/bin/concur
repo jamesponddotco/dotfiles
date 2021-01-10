@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# Script Name: Concur
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Convert currencies using the TransferWise API.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Call the TransferWise API and save the value inside a readonly variable.
+raw_amount="$(curl \
+  --url "https://api.transferwise.com/v3/comparisons/?sourceCurrency=$1&targetCurrency=$2&sendAmount=$3&providerType=moneyTransferProvider" \
+  --tlsv1.3 \
+  --proto '=https' \
+  --compressed \
+  --header "Authorization: Bearer $(pass show concur/readonly-token)" \
+  --silent \
+  | jq --raw-output \
+  '.providers[] | select(.name=="TransferWise") | .quotes[].receivedAmount')"
+readonly raw_amount
+
+# Format and display the currency.
+printf "%'.2f\n" "$raw_amount"
+
+# All was well.
+exit 0
