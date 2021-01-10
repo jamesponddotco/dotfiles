@@ -1,0 +1,117 @@
+#!/usr/bin/env bash
+#
+# Script Name: Update NextDNS's Linked IP
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Update the IP address linked with your NextDNS account.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Save the name of the script inside a readonly variable.
+whoami="${0##*/}"
+readonly whoami
+
+# Color variables to make our output a little easier on the eyes. Respect
+# NO_COLOR, in case the user does not want any.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  c_red='\033[0;31m'
+  c_blue='\033[0;34m'
+  c_green='\033[0;32m'
+  c_bold='\033[1m'
+  c_reset='\033[0m'
+  readonly c_red
+  readonly c_blue
+  readonly c_green
+  readonly c_bold
+  readonly c_reset
+fi
+
+display_usage() {
+
+  # Display usage information when necessary.
+  echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-u|--url <URL>] [-h|--help]"
+
+}
+
+run_checks() {
+
+  # Check see if the more "rare" dependencies are met.
+  linkedip_dependency=(nmcli curl)
+  for linkedip_dependency in "${linkedip_dependency[@]}"; do
+    if ! command -v "$linkedip_dependency" >/dev/null 2>&1; then
+      echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Missing \
+$linkedip_dependency."
+      exit 65
+    fi
+  done
+
+  # URL given by the user running the script.
+  nextdns_url="${2:-}"  nextdns_url="${nextdns_url,,}"
+  readonly nextdns_url
+
+  # Make sure the URL given by the user is valid.
+  if ! echo "$nextdns_url" \
+    | grep 'https://dns.nextdns.io/\|https://link-ip.nextdns.io/' \
+    >/dev/null 2>&1; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Invalid URL. Please \
+make sure that you are feeding the correct NextDNS URL to the script."
+    exit 5
+  fi
+
+  # Abort if a VPN connection is detected.
+  if nmcli connection show --active \
+    | grep 'vpn\|wireguard' >/dev/null 2>&1; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Operation cancelled. \
+VPN connection detected."
+    exit 125
+  fi
+
+}
+
+update_linked_ip() {
+
+  # Let the user know we are starting.
+  echo -e "${c_blue:-}${c_bold:-}[INFO]${c_reset:-} Updating your linked IP..."
+
+  # Update the linked IP address by calling the URL given by the user.
+  curl \
+    --url "$nextdns_url" \
+    --tlsv1.3 \
+    --proto '=https' \
+    --compressed \
+    --silent \
+    --output '/dev/null'
+
+  # Inform the user that we are done.
+  echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Done."
+
+}
+
+# Call our functions.
+case "${1:-}" in
+  -u|--url)
+    run_checks "$@"
+    update_linked_ip "$@"
+    ;;
+  -h|--help)
+    display_usage
+    ;;
+  *)
+    display_usage
+    exit 22
+esac
+
+# All was well.
+exit 0
