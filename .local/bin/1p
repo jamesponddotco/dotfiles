@@ -24,8 +24,7 @@ user_id="$(id --user)"
 readonly user_login
 readonly user_id
 
-# Store the account shorthand used by 1Password inside a readonly variable for
-# later use.
+# Store account information used by 1Password inside readonly variables.
 account_shorthand="$(jq --raw-output '.accounts[].shorthand' \
   "/home/$user_login/.config/op/config")"
 readonly account_shorthand
@@ -54,12 +53,12 @@ if op --session "${session_token:-}" get account >/dev/null 2>&1; then
 else
   # Use pinentry-curses to ask for the user's master password.
   op_tty="$(tty)"
+  readonly op_tty
   op_pass="$(printf \
-    'SETDESC Enter your Master Password.\nSETPROMPT \nGETPIN\n' \
+    "SETDESC Please enter your passphrase to unlock the vault.\nSETPROMPT Passphrase:\nGETPIN\n" \
       | pinentry-curses --ttyname "$op_tty" --lc-ctype 'UTF-8' \
       | grep '^D ' \
       | cut --characters 3-)"
-  readonly op_tty
   readonly op_pass
   
   # Feed the password to 1Password CLI and store the login token on the file we
