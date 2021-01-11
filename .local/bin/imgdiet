@@ -3,7 +3,7 @@
 # Script Name: IMG Diet
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Optimize image files using multiple open source utilities.
-# Version: 0.1.0
+# Version: 0.1.1
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: GNU General Public License v2 or later
@@ -96,7 +96,7 @@ wait..."
   # Optimize the image based on the file format.
   if [[ "$input_file_format" == 'png' ]]; then
     pngquant --skip-if-larger --force --quality 60-80 --speed 1 --strip \
-      --ext '.png' "$input_file"
+      --ext '.png' "$input_file" || true
     advpng --quiet --recompress --shrink-insane "$input_file"
   elif [[ "$input_file_format" =~ jpe?g ]]; then
     readonly image_filename="$(basename "$input_file")"
