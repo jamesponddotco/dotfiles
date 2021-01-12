@@ -3,21 +3,29 @@
 # Script Name: qutebrowser
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Just a wrapper to start qutebrowser from a virtual environment.
-# Version: 1.0.0
+# Version: 2.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Enable "bash strict mode".
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
 IFS=$'\n\t'
 
-# Start qutebrowser, which I installed on /opt/ inside a virtual environment.
-# TODO: start qutebrowser inside a sandbox using firejail, and apparmor.
-/opt/qutebrowser/.venv/bin/python3 -m qutebrowser "$@"
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Start qutebrowser from its virtual environment and keep it inside a sandbox.
+firejail \
+  --quiet \
+  --name='qutebrowser' \
+  --apparmor \
+  --seccomp \
+  --profile='/etc/firejail/qutebrowser.profile' \
+  /opt/qutebrowser/.venv/bin/python3 -m qutebrowser "$@"
 
 # All was well.
 exit 0
