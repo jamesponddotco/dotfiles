@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+#
+# Script Name: Sendvid Dump
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Generate an download a list of Sendvid links from a given URL.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Search for Sendvid links in the URL given by the user and sort them correctly
+# for usage with YouTube-DL.
+link_list="$(w3m -no-cookie -4 -dump "${1:-}" \
+  | grep 'sendvid.com' \
+  | sed 's#.*://#https://#' \
+  | sed '/^[[:space:]]*$/d' \
+  | awk '!a[$0]++' \
+  | tr '\n' ' ')"
+readonly link_list
+
+# Download the videos to the current directory using YouTube-DL.
+youtube-dl --force-ipv4 --no-call-home --ignore-errors --restrict-filenames \
+  --no-overwrites --output '%(title)s.%(ext)s' --quiet "${link_list,,}"
+
+# All was well.
+exit 0
