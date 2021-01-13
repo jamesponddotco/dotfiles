@@ -18,6 +18,19 @@ IFS=$'\n\t'
 LC_ALL='C'
 readonly LC_ALL
 
+# Color variables to make our output a little easier on the eyes. Respect
+# NO_COLOR, in case the user does not want any.
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  c_blue='\033[0;34m'
+  c_green='\033[0;32m'
+  c_bold='\033[1m'
+  c_reset='\033[0m'
+  readonly c_blue
+  readonly c_green
+  readonly c_bold
+  readonly c_reset
+fi
+
 # Search for Sendvid links in the URL given by the user and sort them correctly
 # for usage with YouTube-DL.
 w3m -no-cookie -4 -dump "${1:-}" \
@@ -26,6 +39,13 @@ w3m -no-cookie -4 -dump "${1:-}" \
   | sed '/^[[:space:]]*$/d' \
   | awk '!a[$0]++' \
   > "${TMP:-/tmp}/sendvid-dump"
+video_count="$(awk 'END{print NR}' "${TMP:-/tmp}/sendvid-dump")"
+readonly video_count
+
+# Let the user know we are starting the download process.
+echo -e "${c_blue:-}${c_bold:-}[INFO]${c_reset:-} Found $video_count videos."
+echo -e "${c_blue:-}${c_bold:-}[INFO]${c_reset:-} Download in progress, please \
+wait..."
 
 # Download the videos to the current directory using YouTube-DL.
 youtube-dl --force-ipv4 --no-call-home --ignore-errors --restrict-filenames \
@@ -34,6 +54,9 @@ youtube-dl --force-ipv4 --no-call-home --ignore-errors --restrict-filenames \
 
 # Remove the temporary batch file.
 rm --force "${TMP:-/tmp}/sendvid-dump"
+
+# Let the user know that the videos have been downloaded.
+echo -e "${c_green:-}${c_bold:-}[SUCCESS]${c_reset:-} Done."
 
 # All was well.
 exit 0
