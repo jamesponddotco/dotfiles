@@ -20,17 +20,20 @@ readonly LC_ALL
 
 # Search for Sendvid links in the URL given by the user and sort them correctly
 # for usage with YouTube-DL.
-link_list="$(w3m -no-cookie -4 -dump "${1:-}" \
+w3m -no-cookie -4 -dump "${1:-}" \
   | grep 'sendvid.com' \
   | sed 's#.*://#https://#' \
   | sed '/^[[:space:]]*$/d' \
   | awk '!a[$0]++' \
-  | tr '\n' ' ')"
-readonly link_list
+  > "${TMP:-/tmp}/sendvid-dump"
 
 # Download the videos to the current directory using YouTube-DL.
 youtube-dl --force-ipv4 --no-call-home --ignore-errors --restrict-filenames \
-  --no-overwrites --output '%(title)s.%(ext)s' --quiet "${link_list,,}"
+  --no-overwrites --quiet --no-warnings --output '%(title)s.%(ext)s' \
+  --batch-file "${TMP:-/tmp}/sendvid-dump"
+
+# Remove the temporary batch file.
+rm --force "${TMP:-/tmp}/sendvid-dump"
 
 # All was well.
 exit 0
