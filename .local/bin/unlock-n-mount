@@ -82,10 +82,8 @@ not use root or sudo."
   # Check to see if the drive has not been mounted already, but only if we are
   # not trying to unmount it.
   if ! [[ "${1:-}" =~ ^(-u$|--unmount$) ]]; then
-    local mapper_uuid
-    mapper_uuid="$(lsblk --noheadings --output 'UUID' \
-      "/dev/mapper/luks-$drive_uuid")"
-    if [[ -d "/media/$USER/$mapper_uuid" ]]; then
+    if lsblk --noheadings --output 'UUID' "/dev/mapper/luks-$drive_uuid" \
+      2>/dev/null; then
       echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Drive already mounted."
       exit 114
     fi
