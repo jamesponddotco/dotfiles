@@ -108,17 +108,17 @@ mount_drive() {
   # Keep mount options inside a variable so we can modify them via an argument.
   # Default to making the device read-only.
   if [[ "${3:-}" == '--rw' ]]; then
+    local drive_mount_options
     drive_mount_options='rw,noexec,nosuid,nodev,noatime,nodiratime,errors=remount-ro'
-    local drive_mount_options
   else
-    drive_mount_options='ro,noexec,nosuid,nodev,noatime,nodiratime'
     local drive_mount_options
+    drive_mount_options='ro,noexec,nosuid,nodev,noatime,nodiratime'
   fi
 
   # Get the key file for LUKS from the password store and save it.
+  local drive_password
   drive_password="$(pass show drives/"$drive_uuid" 2>&1 \
     | tr --delete '\n')"
-  local -r drive_password
 
   # Start by unlocking the device, since it is encrypted with LUKS. By using
   # udisks we can avoid the sudo requirement from cryptsetup.
