@@ -109,7 +109,7 @@ mount_drive() {
   # Default to making the device read-only.
   if [[ "${3:-}" == '--rw' ]]; then
     local drive_mount_options
-    drive_mount_options='rw,noexec,nosuid,nodev,noatime,nodiratime,errors=remount-ro'
+    drive_mount_options='rw,noexec,nosuid,nodev,noatime,nodiratime'
   else
     local drive_mount_options
     drive_mount_options='ro,noexec,nosuid,nodev,noatime,nodiratime'
