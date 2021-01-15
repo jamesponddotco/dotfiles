@@ -40,7 +40,7 @@ display_usage() {
   # Display usage information when necessary.
   echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
   echo -e "${c_bold:-}$whoami${c_reset:-} [-m|--mount </path/to/drive/>] \
-[-u|--unmount </path/to/drive/>] [--rw] [-h|--help]"
+[-u|--unmount </path/to/drive/>] [-rw|--read-write] [-h|--help]"
 
 }
 
@@ -105,7 +105,7 @@ mount_drive() {
 
   # Keep mount options inside a variable so we can modify them via an argument.
   # Default to making the device read-only.
-  if [[ "${3:-}" == '--rw' ]]; then
+  if [[ "${3:-}" =~ ^(-rw$|--read-write$) ]]; then
     local drive_mount_options
     drive_mount_options='rw,noexec,nosuid,nodev,noatime,nodiratime'
   else
