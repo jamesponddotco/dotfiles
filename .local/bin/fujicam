@@ -16,7 +16,8 @@ set -euo pipefail
 IFS=$'\n\t'
 
 # Enable the kernel module for v4l2loopback, a virtual video device.
-sudo modprobe v4l2loopback exclusive_caps=1 max_buffers=2 card_label="Fujicam"
+sudo modprobe v4l2loopback video_nr=3 exclusive_caps=1 max_buffers=2 \
+  card_label='Fujicam'
 
 # Make sure that we do not run into the "Could not claim the USB device" error,
 # but only on Xorg. For some reason this problem never happens with Wayland.
@@ -24,12 +25,12 @@ if [[ -z "$WAYLAND_DISPLAY" ]]; then
   pkill -f gphoto2 || true
 fi
 
-# The magic happens here. Use gphoto2 to capture a video using the camera, and
+# The magic happens here. Use gphoto2 to capture a video using the camera and
 # then feed the output to ffmpeg, which in turn uses v4l2loopback to create,
 # and display a webcam.
 gphoto2 --stdout --capture-movie \
   | ffmpeg -i - -vcodec 'rawvideo' -pix_fmt 'yuv420p' -video_size '1024x768' \
-  -f 'v4l2' '/dev/video0'
+  -f 'v4l2' '/dev/video3'
 
 # All was well.
 exit 0
