@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+#
+# Script Name: Firefox
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Wrapper to start Firefox inside a Firejail sandbox.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Use Firejail to start Firefox inside a sandbox, but also offers a better
+# private browsing mode if the user asks for it.
+if [[ "${1:-}" == '--private' ]]; then
+  temporary_profile_directory="$(mktemp --directory --quiet)"
+  readonly temporary_profile_directory
+  firejail \
+    --quiet \
+    --name='Firefox (Private Window)' \
+    --dns=127.0.5.3 \
+    --apparmor \
+    --seccomp \
+    --novideo \
+    --private="$temporary_profile_directory" \
+    --private-tmp \
+    --private-cache \
+    --profile='/etc/firejail/firefox.profile' \
+    /usr/bin/firefox --no-remote --private-window "$@"
+else
+  firejail \
+    --name='Firefox' \
+    --dns=127.0.5.3 \
+    --apparmor \
+    --seccomp \
+    --profile='/etc/firejail/firefox.profile' \
+    /usr/bin/firefox "$@"
+fi
+
+# All was well.
+exit 0
