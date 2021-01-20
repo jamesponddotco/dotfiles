@@ -22,6 +22,7 @@ readonly LC_ALL
 firejail \
   --quiet \
   --name='qutebrowser' \
+  --dns=127.0.5.3 \
   --apparmor \
   --seccomp \
   --profile='/etc/firejail/qutebrowser.profile' \
