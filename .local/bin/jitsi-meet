@@ -31,7 +31,7 @@ firejail \
   --dns=127.0.5.3 \
   --apparmor \
   --appimage \
-  --noprofile \
+  --profile='/etc/firejail/electron.profile' \
   /usr/local/bin/jitsi-meet.AppImage
 
 # All was well.
