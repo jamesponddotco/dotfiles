@@ -2,7 +2,7 @@
 #
 # Script Name: Flush 'n' Lock
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
-# Description: Flush credentials from memory, and lock the screen.
+# Description: Flush credentials from memory and lock the computer screen.
 # Version: 1.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
@@ -10,22 +10,32 @@
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Enable "bash strict mode".
-# http://redsymbol.net/articles/unofficial-bash-strict-mode/
-set -euo pipefail
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
 IFS=$'\n\t'
 
-# Flush GPG, SSH, sudo, and 1Password credentials from memory.
-gpg-connect-agent reloadagent /bye &> /dev/null
-ssh-add -qD
-sudo -K
+# Remove credentials from memory for GnuPG, SSH, sudo, and 1Password.
+gpg-connect-agent --quiet reloadagent /bye > '/dev/null' 2>&1
+ssh-add -q -D
+sudo --remove-timestamp
 1p signout
 
-# Lock the screen. This is handled by GDM3, I think, so it will probably not
-# work everywhere. It does for Regolith Linux, and Ubuntu, though.
-dbus-send --type=method_call \
-  --dest=org.gnome.ScreenSaver /org/gnome/ScreenSaver \
-  org.gnome.ScreenSaver.Lock
+# Ask aerc to exit gracefully, as it has its own GnuPG keychain implementation.
+if pgrep 'aerc' > '/dev/null' 2>&1; then
+  pkill --signal TERM 'aerc'
+fi
+
+# Switch to an empty workspace before locking the screen. Skip if in Wayland.
+if [[ -z "$WAYLAND_DISPLAY" ]]; then
+  available_workspaces="$(wmctrl -d | wc --lines)"
+  readonly available_workspaces
+  wmctrl -s 4 "$(( available_workspaces - 1 ))"
+fi
+
+# Lock the screen by sending a D-Bus message to the GNOME screen saver handler.
+# Does not work when quoted, for some reason.
+dbus-send --dest=org.gnome.ScreenSaver /org/gnome/ScreenSaver \
+  --type=method_call org.gnome.ScreenSaver.Lock
 
 # All was well.
 exit 0
