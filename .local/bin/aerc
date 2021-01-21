@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+#
+# Script Name: aerc
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Start aerc inside a Firejail sandbox with a random hostname.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Use Firejail to start aerc inside a sandbox, but also feed a fake hostname to
+# it so the Message-ID header does not send the real one.
+# TODO: Write a proper profile for aerc based on this PR:
+# https://github.com/netblue30/firejail/pull/3849
+firejail \
+  --quiet \
+  --name='aerc' \
+  --dns=127.0.5.3 \
+  --hostname='cipher.host' \
+  --apparmor \
+  --seccomp \
+  --noprofile \
+  /usr/local/bin/aerc "$@"
+
+# All was well.
+exit 0
