@@ -26,7 +26,7 @@ if pgrep 'aerc' > '/dev/null' 2>&1; then
 fi
 
 # Switch to an empty workspace before locking the screen. Skip if in Wayland.
-if [[ -z "$WAYLAND_DISPLAY" ]]; then
+if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
   available_workspaces="$(wmctrl -d | wc --lines)"
   readonly available_workspaces
   wmctrl -s 4 "$(( available_workspaces - 1 ))"
