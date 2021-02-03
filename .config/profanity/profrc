@@ -9,7 +9,7 @@ theme=default
 vercheck=false
 
 [connection]
-autoping=0
+autoping=60
 account=james@cipher.host
 reveal.os=false
 defaccount=james@cipher.host
