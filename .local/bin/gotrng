@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+#
+# Script Name: Got Random?
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Feed the kernel entropy pool with data from an OneRNG device.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# http://redsymbol.net/articles/unofficial-bash-strict-mode/
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+LC_ALL='C'
+readonly LC_ALL
+
+whoami="${0##*/}"
+readonly whoami
+
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  c_red='\033[0;31m'
+  c_blue='\033[0;34m'
+  c_green='\033[0;32m'
+  c_bold='\033[1m'
+  c_reset='\033[0m'
+  readonly c_red
+  readonly c_blue
+  readonly c_green
+  readonly c_bold
+  readonly c_reset
+fi
+
+display_usage() {
+
+  echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder <direct/rngd>] \
+[-s|--stop] [-fw|--verify-firmware] [-h|--help]"
+
+}
+
+run_checks() {
+
+  onerng_path="/dev/${2:-}"
+  readonly onerng_path
+
+}
+
+start_onerng() {
+
+  stty raw -echo < /dev/"${onerng_path}"
+  echo 'cmd0' > /dev/"${onerng_path}"
+  echo 'cmdO' > /dev/"${onerng_path}"
+
+}
+
+stop_onerng() {
+
+  echo 'cmdo' > /dev/"${onerng_path}"
+  echo 'cmd4' > /dev/"${onerng_path}"
+  echo 'cmdw' > /dev/"${onerng_path}"
+
+}
+
+stop_feeder() {
+
+  rm --force '/run/lock/onerngfeeder.lock'
+
+  if systemctl show rng-tools | grep --quiet 'inactive'; then
+    systemctl start rng-tools
+  fi
+
+}
+
+verify_onerng_firmware() {
+
+  local onerng_temp_file
+  onerng_temp_file="${TMP:-/tmp}/${RANDOM}-verify-onerng"
+  readonly onerng_temp_file
+  touch "${onerng_temp_file}"
+
+  dd if="/dev/${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=4 &
+  local dd_pid
+  dd_pid="$!"
+  readonly dd_pid
+  sleep 0.02
+
+  echo 'cmdO' > "/dev/${onerng_path}"
+  echo 'cmdX' > "/dev/${onerng_path}"
+  
+  sleep 3.5
+  kill --signal 'TERM' "${dd_pid}"
+  stop_onerng
+
+  onerng_verify.py "${onerng_temp_file}"
+  firmware_status="$?"
+
+  rm --force "${onerng_temp_file}"
+
+  if (( "${firmware_status}" = 1 )); then
+    echo '[ERROR] Device is broken or has been compromised.'
+    exit 1
+  fi
+
+}
+
+feeding_method_feeder() {
+
+  while true; do
+    if [[ -f '/run/lock/onerngfeeder.lock' ]]; then
+      dd if="/dev/${onerng_path}" of='/dev/random' bs=128 count=200 \
+        > '/dev/null' 2>&1
+      sleep 5
+    else
+      exit 0
+    fi
+  done
+
+}
+
+feed_dev_random_rngd() {
+
+  if systemctl show rng-tools | grep --quiet 'running'; then
+    systemctl stop rng-tools
+  fi
+
+  openssl enc -aes128 -nosalt -in "/dev/${onerng_path}" \
+    -pass file:"/dev/${onerng_path}" -out '/dev/stdout' 2> '/dev/null' \
+    | rngd --foreground --no-drng 1 --no-tpm 1 --rng-device '/dev/stdin' \
+    > '/dev/null' 2>/dev/null
+
+}
+
+# Call our functions.
+case "${1:-}" in
+  -f|--feeder)
+    run_checks "$@"
+    verify_onerng_firmware
+    start_onerng
+    case "${2:-}" in
+      direct)
+        feed_dev_random_directly
+        ;;
+      rngd)
+        feed_dev_random_rngd
+        ;;
+      *)
+        display_usage
+        exit 22
+    esac
+    ;;
+  -s|--stop)
+    run_checks "$@"
+    stop_feeder
+    stop_onerng
+    ;;
+  -fw|--verify-firmware)
+    run_checks "$@"
+    stop_onerng
+    verify_onerng_firmware
+    ;;
+  *)
+    display_usage
+    exit 22
+esac
+
+# All was well.
+exit 0
