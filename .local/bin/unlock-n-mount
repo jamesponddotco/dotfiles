@@ -3,7 +3,7 @@
 # Script Name: Unlock N' Mount
 # Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
 # Description: Unlock and mount an external drive encrypted with LUKS.
-# Version: 0.1.0
+# Version: 1.0.0
 # Author: James Pond
 # Author URL: https://jamespond.co/
 # License: European Union Public License 1.2 or later
@@ -79,6 +79,16 @@ not use root or sudo."
     exit 13
   fi
 
+  # Make sure that the user has the random password salt saved in 1Password.
+  yubikey_password_salt="$(1p get item "$drive_uuid" --fields password \
+    2> '/dev/null')"
+  readonly yubikey_password_salt
+  if [[ -z "${yubikey_password_salt:-}" ]]; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey password salt \
+missing from 1Password."
+    exit 13
+  fi
+
   # Check to see if the drive has not been mounted already, but only if we are
   # not trying to unmount it.
   if ! [[ "${1:-}" =~ ^(-u$|--unmount$) ]]; then
@@ -87,6 +97,13 @@ not use root or sudo."
       echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Drive already mounted."
       exit 114
     fi
+  fi
+
+  # Check to see if the user forgot to connect their YubiKey.
+  if ! lsusb | grep --quiet 'Yubikey'; then
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey required. Please \
+connect it and try again."
+    exit 126
   fi
 
 }
@@ -98,6 +115,35 @@ flush_thumbnail_cache() {
   rm --recursive --force "$HOME/.cache/thumbnails/fail/"
   rm --recursive --force "$HOME/.cache/thumbnails/large/"
   rm --recursive --force "$HOME/.cache/thumbnails/normal/"
+
+}
+
+construct_luks_password() {
+
+  # Get the key file for LUKS from the password store and save it.
+  local drive_password
+  drive_password="$(pass show drives/"$drive_uuid" 2>&1 \
+    | tr --delete '\n')"
+  readonly drive_password
+
+  # Send 64 bytes of the drive password as a challenge to the YubiKey and save
+  # the response inside a local and readonly variable.
+  local yubikey_challenge_response
+  yubikey_challenge_response="$(ykchalresp -2 "${drive_password:0:64}")"
+  readonly yubikey_challenge_response
+
+  # Use Argon2id to hash the YubiKey challenge response with the random salt we
+  # got from 1Password in the test phase. The Argon2 settings are based on my
+  # own hardware,usage, and patience, so you may need to change them,
+  # especially the memory part.
+  local yubikey_password
+  yubikey_password="$(echo -n "$yubikey_challenge_response" \
+    | argon2 "$yubikey_password_salt" -id -t 40 -m 20 -p 8 -e)"
+  readonly yubikey_password
+
+  # Construct the actual password we use to unlock the LUKS device.
+  luks_password="$yubikey_password\$$drive_password"
+  readonly luks_password
 
 }
 
@@ -113,15 +159,14 @@ mount_drive() {
     drive_mount_options='ro,noexec,nosuid,nodev,noatime,nodiratime'
   fi
 
-  # Get the key file for LUKS from the password store and save it.
-  local drive_password
-  drive_password="$(pass show drives/"$drive_uuid" 2>&1 \
-    | tr --delete '\n')"
+  # Construct the LUKS password by using a random password stored in the
+  # password store and the response from YubiKey to a challenge.
+  construct_luks_password
 
   # Start by unlocking the device, since it is encrypted with LUKS. By using
   # udisks we can avoid the sudo requirement from cryptsetup.
   udisksctl unlock --block-device "$drive_path" \
-    --key-file <(echo -n "$drive_password") >/dev/null 2>&1
+    --key-file <(echo -n "$luks_password") >/dev/null 2>&1
 
   # Mount the device with extra security options.
   udisksctl mount --block-device "/dev/mapper/luks-$drive_uuid" \
