@@ -8,7 +8,7 @@
   program = gpg
 [sendemail]
   smtpencryption = ssl
-  smtpserver     = smtp.soverin.net
+  smtpserver     = smtp.migadu.com
   smtpuser       = james@cipher.host
   smtpserverport = 465
   smtpdomain     = cipher.host
