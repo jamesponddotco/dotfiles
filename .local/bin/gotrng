@@ -66,7 +66,7 @@ stop_onerng() {
 
 stop_feeder() {
 
-  rm --force '/run/lock/onerngfeeder.lock'
+  rm --force '/run/lock/gotrng.lock'
 
 }
 
@@ -108,7 +108,7 @@ verify_onerng_firmware() {
 feeding_method_feeder() {
 
   while true; do
-    if [[ -f '/run/lock/onerngfeeder.lock' ]]; then
+    if [[ -f '/run/lock/gotrng.lock' ]]; then
       dd if="${onerng_path}" of='/dev/random' bs=128 count=200 \
         > '/dev/null' 2>&1
       sleep 5
