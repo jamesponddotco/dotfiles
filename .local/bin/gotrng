@@ -37,7 +37,8 @@ display_usage() {
 
   echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
   echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder </onerng/device/path/>] \
-[-s|--stop] [-fw|--verify-firmware] [-h|--help]"
+[-s|--stop </onerng/device/path/>] [-fw|--verify-firmware \
+</onerng/device/path/>] [-h|--help]"
 
 }
 
