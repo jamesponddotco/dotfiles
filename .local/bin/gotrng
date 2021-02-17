@@ -127,6 +127,7 @@ feeding_method_feeder() {
 case "${1:-}" in
   -f|--feeder)
     run_checks "$@"
+    start_onerng
     verify_onerng_firmware
     start_onerng
     feeding_method_feeder
@@ -138,7 +139,7 @@ case "${1:-}" in
     ;;
   -fw|--verify-firmware)
     run_checks "$@"
-    stop_onerng
+    start_onerng
     verify_onerng_firmware
     ;;
   *)
