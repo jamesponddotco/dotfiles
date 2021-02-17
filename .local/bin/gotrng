@@ -23,12 +23,10 @@ readonly whoami
 if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
   c_red='\033[0;31m'
   c_blue='\033[0;34m'
-  c_green='\033[0;32m'
   c_bold='\033[1m'
   c_reset='\033[0m'
   readonly c_red
   readonly c_blue
-  readonly c_green
   readonly c_bold
   readonly c_reset
 fi
@@ -104,7 +102,8 @@ verify_onerng_firmware() {
   rm --force "${onerng_temp_file}"
 
   if [[ "${firmware_status}" -eq 1 ]]; then
-    echo '[ERROR] Device is broken or has been compromised.'
+    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Device is broken or has \
+been compromised."
     exit 1
   fi
 
