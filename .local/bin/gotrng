@@ -36,7 +36,7 @@ fi
 display_usage() {
 
   echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
-  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder <direct/rngd>] \
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder </onerng/device/path/>] \
 [-s|--stop] [-fw|--verify-firmware] [-h|--help]"
 
 }
@@ -67,10 +67,6 @@ stop_onerng() {
 stop_feeder() {
 
   rm --force '/run/lock/onerngfeeder.lock'
-
-  if systemctl show rng-tools | grep --quiet 'inactive'; then
-    systemctl start rng-tools
-  fi
 
 }
 
@@ -120,36 +116,13 @@ feeding_method_feeder() {
 
 }
 
-feed_dev_random_rngd() {
-
-  if systemctl show rng-tools | grep --quiet 'running'; then
-    systemctl stop rng-tools
-  fi
-
-  openssl enc -aes128 -nosalt -in "/dev/${onerng_path}" \
-    -pass file:"/dev/${onerng_path}" -out '/dev/stdout' 2> '/dev/null' \
-    | rngd --foreground --no-drng 1 --no-tpm 1 --rng-device '/dev/stdin' \
-    > '/dev/null' 2>/dev/null
-
-}
-
 # Call our functions.
 case "${1:-}" in
   -f|--feeder)
     run_checks "$@"
     verify_onerng_firmware
     start_onerng
-    case "${2:-}" in
-      direct)
-        feed_dev_random_directly
-        ;;
-      rngd)
-        feed_dev_random_rngd
-        ;;
-      *)
-        display_usage
-        exit 22
-    esac
+    feeding_method_feeder
     ;;
   -s|--stop)
     run_checks "$@"
