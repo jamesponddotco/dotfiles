@@ -47,6 +47,10 @@ run_checks() {
   onerng_path="/dev/${2:-}"
   readonly onerng_path
 
+  if ! [[ -f '/run/lock/gotrng.lock' ]]; then
+    touch '/run/lock/gotrng.lock'
+  fi
+
 }
 
 start_onerng() {
