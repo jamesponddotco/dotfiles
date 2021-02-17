@@ -50,17 +50,17 @@ run_checks() {
 
 start_onerng() {
 
-  stty raw -echo < /dev/"${onerng_path}"
-  echo 'cmd0' > /dev/"${onerng_path}"
-  echo 'cmdO' > /dev/"${onerng_path}"
+  stty raw -echo < "${onerng_path}"
+  echo 'cmd0' > "${onerng_path}"
+  echo 'cmdO' > "${onerng_path}"
 
 }
 
 stop_onerng() {
 
-  echo 'cmdo' > /dev/"${onerng_path}"
-  echo 'cmd4' > /dev/"${onerng_path}"
-  echo 'cmdw' > /dev/"${onerng_path}"
+  echo 'cmdo' > "${onerng_path}"
+  echo 'cmd4' > "${onerng_path}"
+  echo 'cmdw' > "${onerng_path}"
 
 }
 
@@ -77,14 +77,14 @@ verify_onerng_firmware() {
   readonly onerng_temp_file
   touch "${onerng_temp_file}"
 
-  dd if="/dev/${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=4 &
+  dd if="${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=4 &
   local dd_pid
   dd_pid="$!"
   readonly dd_pid
   sleep 0.02
 
-  echo 'cmdO' > "/dev/${onerng_path}"
-  echo 'cmdX' > "/dev/${onerng_path}"
+  echo 'cmdO' > "${onerng_path}"
+  echo 'cmdX' > "${onerng_path}"
   
   sleep 3.5
   kill --signal 'TERM' "${dd_pid}"
@@ -106,7 +106,7 @@ feeding_method_feeder() {
 
   while true; do
     if [[ -f '/run/lock/onerngfeeder.lock' ]]; then
-      dd if="/dev/${onerng_path}" of='/dev/random' bs=128 count=200 \
+      dd if="${onerng_path}" of='/dev/random' bs=128 count=200 \
         > '/dev/null' 2>&1
       sleep 5
     else
