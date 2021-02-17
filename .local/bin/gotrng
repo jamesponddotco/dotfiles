@@ -73,9 +73,8 @@ stop_feeder() {
 verify_onerng_firmware() {
 
   local onerng_temp_file
-  onerng_temp_file="${TMP:-/tmp}/${RANDOM}-verify-onerng"
+  onerng_temp_file="$(mktemp --tmpdir --quiet 'gotrng-XXXXXXXXXX')"
   readonly onerng_temp_file
-  touch "${onerng_temp_file}"
 
   dd if="${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=4 &
   local dd_pid
@@ -87,15 +86,19 @@ verify_onerng_firmware() {
   echo 'cmdX' > "${onerng_path}"
   
   sleep 3.5
-  kill --signal 'TERM' "${dd_pid}"
+  if ps --pid "${dd_pid}" > '/dev/null' 2>&1; then
+    kill -SIGTERM "${dd_pid}"
+  fi
   stop_onerng
 
+  set +e
   onerng_verify.py "${onerng_temp_file}"
   firmware_status="$?"
+  set -e
 
   rm --force "${onerng_temp_file}"
 
-  if (( "${firmware_status}" = 1 )); then
+  if [[ "${firmware_status}" -eq 1 ]]; then
     echo '[ERROR] Device is broken or has been compromised.'
     exit 1
   fi
