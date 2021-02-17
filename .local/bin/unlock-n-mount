@@ -74,19 +74,23 @@ not use root or sudo."
   fi
 
   # Make sure that the user has the device password in the password store.
-  if ! [[ -f "$HOME/.password-store/drives/$drive_uuid.gpg" ]]; then
-    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Drive password missing."
-    exit 13
+  if ! [[ "${1:-}" =~ ^(-u$|--unmount$) ]]; then
+    if ! [[ -f "$HOME/.password-store/drives/$drive_uuid.gpg" ]]; then
+      echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Drive password missing."
+      exit 13
+    fi
   fi
 
   # Make sure that the user has the random password salt saved in 1Password.
-  yubikey_password_salt="$(1p get item "$drive_uuid" --fields password \
-    2> '/dev/null')"
-  readonly yubikey_password_salt
-  if [[ -z "${yubikey_password_salt:-}" ]]; then
-    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey password salt \
+  if ! [[ "${1:-}" =~ ^(-u$|--unmount$) ]]; then
+    yubikey_password_salt="$(1p get item "$drive_uuid" --fields password \
+      2> '/dev/null')"
+    readonly yubikey_password_salt
+    if [[ -z "${yubikey_password_salt:-}" ]]; then
+      echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey password salt \
 missing from 1Password."
-    exit 13
+      exit 13
+    fi
   fi
 
   # Check to see if the drive has not been mounted already, but only if we are
@@ -100,10 +104,12 @@ missing from 1Password."
   fi
 
   # Check to see if the user forgot to connect their YubiKey.
-  if ! lsusb | grep --quiet 'Yubikey'; then
-    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey required. Please \
+  if ! [[ "${1:-}" =~ ^(-u$|--unmount$) ]]; then
+    if ! lsusb | grep --quiet 'Yubikey'; then
+      echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} YubiKey required. Please \
 connect it and try again."
-    exit 126
+      exit 126
+    fi
   fi
 
 }
