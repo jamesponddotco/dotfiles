@@ -53,7 +53,9 @@ run_checks() {
 
 start_onerng() {
 
-  stty raw -echo < "${onerng_path}"
+  chown 'root:root' "${onerng_path}"
+  chmod 600 "${onerng_path}"
+  stty --file "${onerng_path}" raw -echo
   echo 'cmd0' > "${onerng_path}"
   echo 'cmdO' > "${onerng_path}"
 
@@ -74,6 +76,8 @@ stop_feeder() {
 }
 
 verify_onerng_firmware() {
+
+  stty --file "${onerng_path}" raw -echo clocal -crtscts
 
   local onerng_temp_file
   onerng_temp_file="$(mktemp --tmpdir --quiet 'gotrng-XXXXXXXXXX')"
@@ -127,7 +131,7 @@ feeding_method_feeder() {
 case "${1:-}" in
   -f|--feeder)
     run_checks "$@"
-    start_onerng
+    stop_onerng
     verify_onerng_firmware
     start_onerng
     feeding_method_feeder
@@ -139,7 +143,7 @@ case "${1:-}" in
     ;;
   -fw|--verify-firmware)
     run_checks "$@"
-    start_onerng
+    stop_onerng
     verify_onerng_firmware
     ;;
   *)
