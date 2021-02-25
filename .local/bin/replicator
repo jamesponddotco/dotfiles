@@ -154,7 +154,7 @@ run_backup() {
 
   # Run a backup using a pattern file as source and excluding cache files.
   BORG_PASSPHRASE="${repository_password}" \
-    borg create --compression zstd --list --stats --exclude-caches \
+    borg create --compression zstd --stats --exclude-caches \
     --patterns-from "${HOME}/.config/borg/backup-pattern" \
     "${repository_name}::${archive_name}"
 
