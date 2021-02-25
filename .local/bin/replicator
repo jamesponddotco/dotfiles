@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+#
+# Script Name: Replicator
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Simple wrapper around borgbackup (or an enemy of the Asgard).
+# Version: 0.1.0
+# Author: James Pond
+# Autho URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Increase verbosity when running tests or troubleshooting issues.
+if [[ "${BASH_OUTPUT:-quiet}" == 'verbose' ]]; then
+  set -o xtrace
+fi
+
+display_usage() {
+
+  # Display usage information when necessary.
+  printf "USAGE:\n"
+  printf "replicator [-b|--backup </path/to/repo/>] [-p|--prune \
+</path/to/repo/>] [-c|--check </path/to/repo/>] [-h|--help]\n"
+
+}
+
+run_generic_checks() {
+
+  # Save the repository path to an easy to remember variable.
+  repository_name="${2:-}"
+  readonly repository_name
+
+  # Check to see if the repository is on an rsync.net server and set an special
+  # value for BORG_REMOTE_PATH if it is, since the regular borg binary
+  # available by default is too old.
+  if printf "%s" "${repository_name}" | grep --quiet 'rsync.net'; then
+    export BORG_REMOTE_PATH='borg1'
+    readonly BORG_REMOTE_PATH
+  fi
+
+  # Check to see if an OneRNG device is connected and, if one is, use random
+  # instead of urandom as the entropy pool instead.
+  if lsusb | grep --quiet 'OpenMoko'; then
+    random_source='/dev/random'
+    readonly random_source
+  else
+    random_source='/dev/urandom'
+    readonly random_source
+  fi
+
+}
+
+generate_random_password() {
+
+  # Generate a strong, secure, and random password to encrypt backups with.
+  head --zero-terminated --bytes 128 \
+    < <(exec tr --delete --complement '[:punct:][:alnum:]' < "${random_source}")
+
+}
+
+user_secret_tool() {
+
+  # We cannot use the GNOME keyring without an unlocked session and DBus
+  # session, so we hijack the session from the logged in user instead. For this
+  # to work you need to run the backup cron job as the logged-in user, though.
+  user_login="$(id --user --name)"
+  user_id="$(id --user)"
+  sudo --user "${user_login}" --set-home \
+    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/${user_id}/bus" \
+    secret-tool "$@"
+
+}
+
+create_repository() {
+
+  # Grab a randomly generated password for use with the backup repository.
+  local repository_password
+  repository_password="$(generate_random_password)"
+  readonly repository_password
+
+  # Create an empty encrypted repository to store backups in. The encryption
+  # for the repository uses a key file and a randomly generated password.
+  set +e
+  BORG_PASSPHRASE="${repository_password}" \
+    borg init --encryption keyfile-blake2 --make-parent-dirs \
+    "${repository_name}"
+
+  #If the repository was created sucessfully, save the password.
+  # shellcheck disable=SC2181
+  if [[ "$?" -eq 0 ]]; then
+    printf "%s" "${repository_password}" \
+      | user_secret_tool store borg-repository "${repository_name}" \
+      --label="Borg Passphrase"
+  fi
+  set -e
+
+}
+
+prune_repository() {
+
+  # Get the repository password from GNOME keyring.
+  local repository_password
+  repository_password="$(user_secret_tool lookup borg-repository \
+    "${repository_name}")"
+  readonly repository_password
+
+  # Keep 7 end of day, 4 end of week archives, and 3 additional end of month
+  # archives. This should be plenty.
+  BORG_PASSPHRASE="${repository_password}" \
+    borg prune --keep-daily 7 --keep-weekly 4 --keep-monthly 3 \
+    "${repository_name}"
+
+}
+
+check_repository() {
+
+  # Get the repository password from GNOME keyring.
+  local repository_password
+  repository_password="$(user_secret_tool lookup borg-repository \
+    "${repository_name}")"
+  readonly repository_password
+
+  # Check the integrity of the repository and archives.
+  BORG_PASSPHRASE="${repository_password}" \
+    borg check --verify-data "${repository_name}"
+
+}
+
+run_backup() {
+
+  # Get the repository password from GNOME keyring.
+  local repository_password
+  repository_password="$(user_secret_tool lookup borg-repository \
+    "${repository_name}")"
+  readonly repository_password
+
+  # Give our archive a name following a $random-$hostname-$date pattern. Each
+  # computer has its own repository, so there should be no conflict.
+  local archive_name_prefix
+  archive_name_prefix="$(head --zero-terminated --bytes 8 \
+    < <(exec tr --delete --complement '[:alnum:]' < "${random_source}"))"
+  readonly archive_name_prefix
+  local archive_name
+  archive_name="${archive_name_prefix}-$(hostname --fqdn)-$(date --iso-8601)"
+  readonly archive_name
+
+  # Run a backup using a pattern file as source and excluding cache files.
+  BORG_PASSPHRASE="${repository_password}" \
+    borg create --compression zstd --list --stats --exclude-caches \
+    --patterns-from "${HOME}/.config/borg/backup-pattern" \
+    "${repository_name}::${archive_name}"
+
+}
+
+# Call our functions.
+case "${1:-}" in
+  -b|--backup)
+    run_generic_checks "$@"
+    create_repository
+    run_backup
+    ;;
+  -p|--prune)
+    run_generic_checks "$@"
+    prune_repository
+    ;;
+  -c|--check)
+    run_generic_checks "$@"
+    check_repository
+    ;;
+  -h|--help)
+    display_usage
+    ;;
+  *)
+    display_usage
+    exit 22
+esac
+
+# All was well.
+exit 0
