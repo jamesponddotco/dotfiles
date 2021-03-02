@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+#
+# Script Name: Copyredir
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Grab a redirect from a given URL and copy it to the clipboard.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Increase verbosity if we are running tests.
+if [[ "${BASH_OUTPUT:-quiet}" == 'verbose' ]]; then
+  set -x
+fi
+
+# Copy find a redirect in the URL given by the user and copy it to the
+# clipboard if it exists.
+curl \
+  --silent \
+  --url "${1:-}" \
+  --head \
+  --compressed \
+  | awk '/Location:/ {print $2}' \
+  | xsel --clipboard --input
+
+# All was well.
+exit 0
