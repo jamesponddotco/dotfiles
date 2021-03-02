@@ -46,19 +46,21 @@ run_generic_checks() {
     readonly BORG_REMOTE_PATH
   fi
 
-  # Check to see if an OneRNG device is connected and, if one is, use random
-  # instead of urandom as the entropy pool instead.
-  if lsusb | grep --quiet 'OpenMoko'; then
-    random_source='/dev/random'
-    readonly random_source
-  else
-    random_source='/dev/urandom'
-    readonly random_source
-  fi
-
 }
 
 generate_random_password() {
+
+  # Check to see if an OneRNG device is connected and, if one is, use random
+  # instead of urandom as the entropy pool instead.
+  if lsusb | grep --quiet 'OpenMoko'; then
+    local random_source
+    random_source='/dev/random'
+    readonly random_source
+  else
+    local random_source
+    random_source='/dev/urandom'
+    readonly random_source
+  fi
 
   # Generate a strong, secure, and random password to encrypt backups with.
   head --zero-terminated --bytes 128 \
@@ -142,14 +144,10 @@ run_backup() {
     "${repository_name}")"
   readonly repository_password
 
-  # Give our archive a name following a $random-$hostname-$date pattern. Each
-  # computer has its own repository, so there should be no conflict.
-  local archive_name_prefix
-  archive_name_prefix="$(head --zero-terminated --bytes 8 \
-    < <(exec tr --delete --complement '[:alnum:]' < "${random_source}"))"
-  readonly archive_name_prefix
+  # Give our archive a name following a $date-$hostname pattern. Each computer
+  # has its own repository, so there should be no conflict.
   local archive_name
-  archive_name="${archive_name_prefix}-$(hostname --fqdn)-$(date --iso-8601)"
+  archive_name="$(date --iso-8601='minutes')-$(hostname --fqdn)"
   readonly archive_name
 
   # Run a backup using a pattern file as source and excluding cache files.
