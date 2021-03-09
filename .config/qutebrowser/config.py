@@ -50,7 +50,6 @@ config.set('content.javascript.enabled', False)
 js_whitelist = [
     "*://localhost/*",
     "*://127.0.0.1/*",
-    "https://github.com/*",
     "https://news.ycombinator.com/*",
     "https://feedbin.com/*",
     "https://languagetool.org/*",
