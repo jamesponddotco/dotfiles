@@ -18,6 +18,11 @@ IFS=$'\n\t'
 LC_ALL='C'
 readonly LC_ALL
 
+# Increase verbosity if we are running tests.
+if [[ "${BASH_OUTPUT:-quiet}" == 'verbose' ]]; then
+  set -x
+fi
+
 # Save the name and ID of the user running this script.
 user_login="$(id --user --name)"
 user_id="$(id --user)"
