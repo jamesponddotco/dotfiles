@@ -66,7 +66,7 @@ fi
 # Do not try to renew the token if we are logging out.
 if [[ "${1:-}" == 'signout' ]]; then
   op --session "${session_token:-}" signout
-  rm --force "$secure_session_token"
+  shred --force --zero "$secure_session_token"
   exit 0
 fi
 
