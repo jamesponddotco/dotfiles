@@ -39,8 +39,8 @@ display_usage() {
 
   # Display usage information when necessary.
   echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
-  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder </onerng/device/path/>] \
-[-s|--stop </onerng/device/path/>] [-fw|--verify-firmware \
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder </onerng/device/path/> \
+-r|--reckless-mode$ [-s|--stop </onerng/device/path/>] [-fw|--verify-firmware \
 </onerng/device/path/>] [-h|--help]"
 
 }
@@ -114,6 +114,12 @@ stop_feeder() {
 }
 
 verify_onerng_firmware() {
+
+  # Do not verify firmware if the user asked to skip it.
+  if [[ "${1:-}" =~ ^(-f$|--feeder$) ]] && \
+    [[ "${3:-}" =~ ^(-r$|--reckless-mode$) ]]; then
+    return 0
+  fi
 
   # Change the TTY device to raw mode, disable model control signals, and
   # enable RTS handshaking.
