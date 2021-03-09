@@ -20,22 +20,13 @@ readonly LC_ALL
 
 # Increase verbosity if we are running tests.
 if [[ "${BASH_OUTPUT:-quiet}" == 'verbose' ]]; then
-  set -x
+  set -o xtrace
 fi
 
-# Save the name and ID of the user running this script.
-user_login="$(id --user --name)"
+# If a session toke file already exists, grab and save it. Otherwise, create a
+# placeholder file with tight permissions.
 user_id="$(id --user)"
-readonly user_login
 readonly user_id
-
-# Store account information used by 1Password inside readonly variables.
-account_shorthand="$(jq --raw-output '.accounts[].shorthand' \
-  "/home/$user_login/.config/op/config")"
-readonly account_shorthand
-
-# Grab the session token, if it exists. Otherwise, just create a placeholder
-# file with proper permissions.
 if [[ -d "/dev/shm/${user_id}/" ]]; then
   secure_tmp="/dev/shm/${user_id}"
   readonly secure_tmp
@@ -55,44 +46,65 @@ else
   printf '[ERROR] No secure location to store session file found. Exiting.\n'
   exit 1
 fi
-secure_session_token="${secure_tmp}/op-session.token"
-readonly secure_session_token
-if [[ -f "$secure_session_token" && -s "$secure_session_token" ]]; then
-  session_token="$(cat "$secure_session_token")"
+token_file="${secure_tmp}/op-session.token"
+readonly token_file
+if [[ -f "${token_file}" && -s "${token_file}" ]]; then
+  session_token="$(cat "${token_file}")"
 else
-  install --mode 600 '/dev/null' "${secure_session_token}"
+  install --mode 600 '/dev/null' "${token_file}"
 fi
 
 # Do not try to renew the token if we are logging out.
 if [[ "${1:-}" == 'signout' ]]; then
   op --session "${session_token:-}" signout
-  shred --force --zero "$secure_session_token"
+  shred --force --zero "${token_file}"
   exit 0
 fi
 
-# Check to see if we are already logged-in. If we are, do nothing, but if we
-# are not, use pinentry-curses to send the master password to 1Password CLI.
-if op --session "${session_token:-}" get account >/dev/null 2>&1; then
-  op --session "${session_token:-}" --cache "$@"
+# Check to see if our session is still valid. If it is, just feed the 1Password
+# CLI with whatever the user asked, but if the session has expired already or
+# does not exist, use pinentry-curses to ask for the master password and
+# generate a new working session.
+if op --session "${session_token:-}" get account > '/dev/null' 2>&1; then
+  op --session "${session_token}" --cache "$@"
 else
+  # Check to see if the configuration file for op exists.
+  if [[ -f "${HOME}/.op/config" && -s "${HOME}/.op/config" ]]; then
+    configuration_file="${HOME}/.op/config"
+    readonly configuration_file
+  elif [[ -f "${HOME}/.config/op/config" \
+    && -s "${HOME}/.config/op/config" ]]; then
+    configuration_file="${HOME}/.config/op/config"
+    readonly configuration_file
+  else
+    printf '[ERROR] You must configure op before using 1p. Exiting.\n'
+    exit 1
+  fi
+
   # Use pinentry-curses to ask for the user's master password.
-  op_tty="$(tty)"
-  readonly op_tty
-  op_pass="$(printf \
+  pinentry_tty="$(tty)"
+  readonly pinentry_tty
+  master_password="$(printf \
     "SETDESC Please enter your passphrase to unlock the vault.\nSETPROMPT Passphrase:\nGETPIN\n" \
-      | pinentry-curses --ttyname "$op_tty" --lc-ctype 'UTF-8' \
+      | pinentry-curses --ttyname "${pinentry_tty}" --lc-ctype 'UTF-8' \
       | grep '^D ' \
       | cut --characters 3-)"
-  readonly op_pass
-  
-  # Feed the password to 1Password CLI and store the login token on the file we
-  # created earlier. With libpam-tmpdir and chmod 600, this should be safeish.
-  printf '%s' "$op_pass" \
-    | op signin --raw "${account_shorthand:-}" > "$secure_session_token"
+  readonly master_password
 
-  # Call 1Password CLI and pass whatever we want to it.
-  session_token="$(cat "$secure_session_token")"
-  op --session "${session_token:-}" --cache "$@"
+  # Grab the account shorthand for 1Password from op's configuration file.
+  account_shorthand="$(jq --raw-output '.accounts[].shorthand' \
+    "${configuration_file}")"
+  readonly account_shorthand
+  
+  # Feed the master password to 1Password CLI and store the login token on the
+  # file we created earlier. With all the precautions we took above, this
+  # should be safeish.
+  printf '%s' "${master_password}" \
+    | op signin --raw "${account_shorthand}" > "${token_file}"
+
+  # Call 1Password CLI and pass whatever the user sent to it.
+  session_token="$(cat "${token_file}")"
+  op --session "${session_token}" --cache "$@"
 fi
 
 # All was well.
