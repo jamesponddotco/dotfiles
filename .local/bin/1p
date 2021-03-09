@@ -31,18 +31,37 @@ readonly account_shorthand
 
 # Grab the session token, if it exists. Otherwise, just create a placeholder
 # file with proper permissions.
-session_token_file="/tmp/user/$user_id/op-session-token"
-readonly session_token_file
-if [[ -f "$session_token_file" ]]; then
-  session_token="$(cat "$session_token_file")"
+if [[ -d "/dev/shm/${user_id}/" ]]; then
+  secure_tmp="/dev/shm/${user_id}"
+  readonly secure_tmp
+elif [[ -d "/tmp/${user_id}/" ]]; then
+  secure_tmp="/tmp/${user_id}"
+  readonly secure_tmp
+elif [[ -d '/dev/shm/' && -w '/dev/shm/' && -x '/dev/shm/' ]]; then
+  mkdir --mode 700 "/dev/shm/${user_id}/"
+  secure_tmp="/dev/shm/${user_id}"
+  readonly secure_tmp
+elif df --type 'tmpfs' '/tmp/' > '/dev/null' 2>&1; then
+  mkdir --parents "/tmp/user/${user_id}/"
+  chmod --recursive 700 "/tmp/user/${user_id}"
+  secure_tmp="/tmp/user/${user_id}"
+  readonly secure_tmp
 else
-  install --mode 600 '/dev/null' "/tmp/user/$user_id/op-session-token"
+  printf '[ERROR] No secure location to store session file found. Exiting.\n'
+  exit 1
+fi
+secure_session_token="${secure_tmp}/op-session.token"
+readonly secure_session_token
+if [[ -f "$secure_session_token" ]]; then
+  session_token="$(cat "$secure_session_token")"
+else
+  install --mode 600 '/dev/null' "${secure_session_token}"
 fi
 
 # Do not try to renew the token if we are logging out.
 if [[ "${1:-}" == 'signout' ]]; then
   op --session "${session_token:-}" signout
-  rm --force "$session_token_file"
+  rm --force "$secure_session_token"
   exit 0
 fi
 
@@ -64,10 +83,10 @@ else
   # Feed the password to 1Password CLI and store the login token on the file we
   # created earlier. With libpam-tmpdir and chmod 600, this should be safeish.
   printf '%s' "$op_pass" \
-    | op signin --raw "${account_shorthand:-}" > "$session_token_file"
+    | op signin --raw "${account_shorthand:-}" > "$secure_session_token"
 
   # Call 1Password CLI and pass whatever we want to it.
-  session_token="$(cat "$session_token_file")"
+  session_token="$(cat "$secure_session_token")"
   op --session "${session_token:-}" --cache "$@"
 fi
 
