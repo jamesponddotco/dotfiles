@@ -54,8 +54,6 @@ js_whitelist = [
     "https://news.ycombinator.com/*",
     "https://feedbin.com/*",
     "https://languagetool.org/*",
-    "https://languagetoolplus.com/*",
-    "https://mail.soverin.net/*",
     "https://my.1password.com/*",
     "https://*.seedbox.io/*",
     "https://*.floatplane.com/*",
