@@ -26,7 +26,7 @@ c.aliases = {
 }
 
 # Use the same user-agent as Firefox on Linux.
-config.set('content.headers.user_agent', 'Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101 Firefox/78.0')
+config.set('content.headers.user_agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.150 Safari/537.36')
 
 # Disable WebGL by default.
 config.set('content.webgl', False)
