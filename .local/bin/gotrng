@@ -145,6 +145,30 @@ verify_onerng_firmware() {
   onerng_temp_file="$(mktemp --tmpdir --quiet 'gotrng-XXXXXXXXXX')"
   readonly onerng_temp_file
 
+  # Warm up the device until it starts giving us data.
+  local loop_counter
+  loop_counter=0
+  until [[ "${loop_counter}" -lt 200 ]]; do
+    truncate --size 0 "${onerng_temp_file}"
+    echo 'cmd0' > "${onerng_path}"
+    echo 'cmdO' > "${onerng_path}"
+    dd if="${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=1 &
+    local loop_pid
+    loop_pid="$!"
+    stty --file "${onerng_path}" raw -echo clocal -crtscts
+    sleep 0.05
+    stop_onerng
+    if ps --pid "${loop_pid}" > '/dev/null' 2>&1; then
+      kill -SIGTERM "${loop_pid}"
+    fi
+    if [[ -s "${onerng_temp_file}" ]]; then
+      truncate --size 0 "${onerng_temp_file}"
+      break
+    else
+      loop_counter="$((loop_counter+1))"
+    fi
+  done
+
   # Read data from the OneRNG device to the temporary file, but save the PID so
   # we can kill it later if necessary.
   dd if="${onerng_path}" iflag=fullblock of="${onerng_temp_file}" bs=4 &
