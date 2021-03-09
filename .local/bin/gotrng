@@ -39,9 +39,10 @@ display_usage() {
 
   # Display usage information when necessary.
   echo -e "${c_blue:-}${c_bold:-}USAGE:${c_reset:-}"
-  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder </onerng/device/path/> \
--r|--reckless-mode$ [-s|--stop </onerng/device/path/>] [-fw|--verify-firmware \
-</onerng/device/path/>] [-h|--help]"
+  echo -e "${c_bold:-}$whoami${c_reset:-} [-f|--feeder \
+</onerng/device/path/|auto> -r|--reckless-mode$ [-s|--stop \
+</onerng/device/path/>] [-fw|--verify-firmware </onerng/device/path/>] \
+[-h|--help]"
 
 }
 
@@ -60,15 +61,29 @@ root or sudo."
     exit 22
   fi
 
-  # Save the device path given by the user.
-  onerng_path="/dev/${2:-}"
-  readonly onerng_path
+  # Save the device path given by the user, and if the user asked us to find
+  # the device for them instead, try to do that.
+  if ! [[ "${2:-}" == 'auto' ]]; then
+    onerng_path="/dev/${2:-}"
+    readonly onerng_path
+  else
+    tty_array=(/dev/ttyACM*)
+    for tty_device in "${tty_array[@]}"; do
+      if udevadm info "${tty_device}" | grep --quiet 'OneRNG'; then
+        onerng_path="${tty_device}"
+        readonly onerng_path
+        break
+      fi
+    done
+  fi
 
   # Make sure the device the user is trying to use is actually an OneRNG.
-  if ! udevadm info "${onerng_path}" | grep --quiet 'OneRNG'; then
-    echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Invalid device. Please \
+  if ! [[ "${2:-}" == 'auto' ]]; then
+    if ! udevadm info "${onerng_path}" | grep --quiet 'OneRNG'; then
+      echo -e "${c_red:-}${c_bold:-}[ERROR]${c_reset:-} Invalid device. Please \
 connect an OneRNG and try again."
-    exit 1
+      exit 1
+    fi
   fi
 
   # Create a lock file if this is our first time running the script, but exit
