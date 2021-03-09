@@ -63,6 +63,8 @@ js_whitelist = [
     "https://console.hetzner.cloud/*",
     "https://robot.your-server.de/*",
     "https://www.justwatch.com/*"
+    "https://id.gandi.net/*"
+    "https://admin.gandi.net/*"
 ]
 
 for site in js_whitelist:
