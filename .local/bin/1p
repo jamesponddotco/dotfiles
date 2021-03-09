@@ -57,7 +57,7 @@ else
 fi
 secure_session_token="${secure_tmp}/op-session.token"
 readonly secure_session_token
-if [[ -f "$secure_session_token" ]]; then
+if [[ -f "$secure_session_token" && -s "$secure_session_token" ]]; then
   session_token="$(cat "$secure_session_token")"
 else
   install --mode 600 '/dev/null' "${secure_session_token}"
