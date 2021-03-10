@@ -107,3 +107,6 @@ config.set('tabs.favicons.show', 'never')
 #
 # [1] https://github.com/Linuus/nord-qutebrowser
 config.source('themes/nord.py')
+
+# Redirect a few websites to privacy-focused versions of them.
+config.source('bin/redirector.py')
