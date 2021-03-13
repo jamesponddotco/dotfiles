@@ -16,16 +16,10 @@ IFS=$'\n\t'
 
 # Use Firejail to start aerc inside a sandbox, but also feed a fake hostname to
 # it so the Message-ID header does not send the real one.
-# TODO: Write a proper profile for aerc based on this PR:
-# https://github.com/netblue30/firejail/pull/3849
 firejail \
-  --quiet \
-  --name='aerc' \
-  --dns=127.0.5.3 \
+  --env='LD_PRELOAD=/usr/lib/x86_64-linux-gnu/torsocks/libtorsocks.so' \
   --hostname='cipher.host' \
-  --apparmor \
-  --seccomp \
-  --noprofile \
+  --profile='/etc/firejail/overrides/aerc.profile' \
   /usr/local/bin/aerc "$@"
 
 # All was well.
