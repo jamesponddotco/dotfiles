@@ -184,11 +184,12 @@ let g:netrw_dirhistmax = 0
 autocmd! User GoyoEnter Limelight
 autocmd! User GoyoLeave Limelight!
 
-" Enable persistent 'undo'.
-if has('persistent_undo')
-  set undodir=~/.vim/backup/undodir
-  set undofile
+" Enable persistent 'undo' while the computer is on.
+if !isdirectory("/dev/shm/.vim/undo")
+  call mkdir("/dev/shm/.vim/undo", "p", 0700)
 endif
+set undodir=/dev/shm/.vim/undo
+set undofile
 
 " Makes opening NERDTree easier to remember.
 map <C-x> :NERDTreeToggle<CR>
