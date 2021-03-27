@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+#
+# Script Name: youtube-dl
+# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
+# Description: Put youtube-dl inside a sandbox, and do not let it play with
+# configuration files.
+# Version: 0.1.0
+# Author: James Pond
+# Author URL: https://jamespond.co/
+# License: European Union Public License 1.2 or later
+# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
+#
+
+# Use bash's "unofficial strict mode".
+set -o errexit -o nounset -o errtrace -o pipefail
+IFS=$'\n\t'
+
+# Force all output to use the simplest locale.
+LC_ALL='C'
+readonly LC_ALL
+
+# Increase verbosity when running tests or troubleshooting issues.
+if [[ "${BUILD_OUTPUT:-quiet}" == 'verbose' ]]; then
+  set -o xtrace
+fi
+
+# Call youtube-dl using a custom Firejail profile for security.
+firejail --profile='/etc/firejail/overrides/youtube-dl.profile' \
+  /usr/local/bin/youtube-dl \
+    --quiet \
+    --force-ipv4 \
+    --continue \
+    --restrict-filenames \
+    --no-overwrites \
+    --no-call-home \
+    --external-downloader 'aria2c' \
+    --external-downloader-args \
+      '--quiet --no-netrc --split=16 --max-connection-per-server=16 --min-split-size=5M' \
+    --merge-output-format 'mkv' \
+    --output '%(title)s.%(ext)s' \
+    "$@"
+
+# All was well.
+exit 0
