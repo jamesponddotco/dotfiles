@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+export OPENSSL_CONF='/opt/xivlauncher/openssl_fix.cnf'
+export __GL_SHADER_DISK_CACHE=1
+export __GL_SHADER_DISK_CACHE_PATH='/tmp/ffxiv-shader-cache'
+export WINEDLLOVERRIDES='dxgi=n'
+export VKVD3D_CONFIG='dxr11,dxr'
+export VKVD3D_FEATURE_LEVEL='12_2'
+export mesa_glthread='true'
+export vk_xwayland_wait_ready='false'
+
+mkdir -p '/tmp/ffxiv-shader-cache'
+ulimit -n 524288
+
+/opt/xivlauncher/XIVLauncher.Core
