@@ -1,21 +1,21 @@
 entry {
-  background: #464646;
-  margin-top: 63px;
-  margin-bottom: 63px;
-  border-radius: 50px;
-  padding: 5px 15px;
+	padding: 5px 15px;
+	border-radius: 50px;
+	margin-top: 63px;
+	margin-bottom: 63px;
+	background: #464646;
 }
 
 button {
-  background: none;
-  border-radius: 20px;
-  padding: 10px;
+	padding: 10px;
+	border-radius: 20px;
+	background: none;
 }
 
 button:hover {
-  background-color: #3a3a3a;
+	background-color: #3a3a3a;
 }
 
 button:focus {
-  outline: none;
+	outline: none;
 }
