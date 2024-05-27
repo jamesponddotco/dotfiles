@@ -1,0 +1,57 @@
+.notification-row .notification-background {
+  padding: 6px 0;
+}
+
+.notification-row .notification-background .close-button {
+  background: #595959;
+  color: #fff;
+}
+
+.notification-row .notification-background .notification {
+  border: none;
+  background: #474747;
+}
+
+.notification-row .notification-background .notification .notification-default-action .notification-content .text-box .time {
+  margin-right: 36px;
+}
+
+.control-center {
+  font-family: Cantarell;
+  background: #353535;
+  color: #fff;
+  border-radius: 12px;
+  padding: 3px;
+}
+
+.control-center .control-center-list-placeholder {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.control-center .control-center-list .notification {
+  box-shadow: none;
+  background: #474747;
+  color: #cecece;
+  border: none;
+}
+
+.widget-title > button {
+  border: none;
+  background: #474747;
+  color: #e0e0e0;
+}
+
+.widget-dnd > switch {
+  background: #535353;
+  border: 1px none;
+}
+
+.widget-dnd > switch:checked {
+  background: @bg-selected;
+}
+
+.widget-dnd > switch slider {
+  background: #fff;
+  border-radius: 12px;
+}

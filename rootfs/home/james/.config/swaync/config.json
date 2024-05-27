@@ -1,0 +1,12 @@
+{
+  "positionX": "center",
+  "control-center-margin-top": 57,
+  "fit-to-screen": false,
+  "control-center-height": 600,
+  "widgets": [
+    "inhibitors",
+    "title",
+    "dnd",
+    "notifications"
+  ]
+}
