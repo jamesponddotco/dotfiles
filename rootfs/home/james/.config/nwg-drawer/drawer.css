@@ -1,0 +1,21 @@
+entry {
+  background: #464646;
+  margin-top: 63px;
+  margin-bottom: 63px;
+  border-radius: 50px;
+  padding: 5px 15px;
+}
+
+button {
+  background: none;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+button:hover {
+  background-color: #3a3a3a;
+}
+
+button:focus {
+  outline: none;
+}
