@@ -1,7 +1,0 @@
-[james@cipher.host]
-enabled=true
-jid=james@cipher.host
-tls.policy=trust
-muc.nick=James Pond
-presence.login=online
-eval_password=pass show profanity/james@cipher.host
