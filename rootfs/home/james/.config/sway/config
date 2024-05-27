@@ -1,0 +1,47 @@
+# Config for sway, a tiling Wayland compositor.
+#
+# Read `man 5 sway` for a complete reference.
+
+############
+# Variables
+############
+
+# Set the modifier key.
+set $mod Mod4
+
+# Set home row direction keys, like in vim.
+set $left h
+set $down j
+set $up k
+set $right l
+
+# Set the terminal.
+set $term alacritty
+
+# Set the application launcher.
+set $menu nwg-drawer -g 'adw-gtk3-dark' -i 'MoreWaita' -fm 'nautilus' -is '96' -nofs -nocats
+
+# Set required Wayland environment.
+exec systemctl --user set-environment XDG_CURRENT_DESKTOP='sway'
+exec systemctl --user import-environment DISPLAY \
+                                         SWAYSOCK \
+                                         WAYLAND_DISPLAY \
+                                         XDG_CURRENT_DESKTOP
+
+exec hash dbus-update-activation-environment 2>/dev/null && \
+     dbus-update-activation-environment --systemd DISPLAY \
+                                                  SWAYSOCK \
+                                                  XDG_CURRENT_DESKTOP='sway' \
+                                                  WAYLAND_DISPLAY
+
+##############
+# User Config
+##############
+
+include $HOME/.config/sway/config.d/*.conf
+
+#####################
+# Workstation Config
+#####################
+
+include $HOME/.config/sway/workstation.d/`hostname`/*.conf
