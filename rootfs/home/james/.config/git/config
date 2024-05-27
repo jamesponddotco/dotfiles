@@ -27,6 +27,8 @@
   template = ~/.config/git/message
 [format]
   signoff = true
+[tag]
+  gpgsign = true
 [push]
   default = simple
 [pull]
