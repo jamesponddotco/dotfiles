@@ -10,39 +10,44 @@
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Use bash's "unofficial strict mode".
-set -o errexit -o nounset -o errtrace -o pipefail
+# Configure bash to work in "strict mode" to make it more robust, reliable and
+# maintainable, like some other languages.
+set -o errexit -o errtrace -o pipefail -o nounset
+shopt -s nullglob
+unset CDPATH
 IFS=$'\n\t'
-
-# Force all output to use the simplest locale.
 LC_ALL='C'
-readonly LC_ALL
 
-# Use Firejail to start Firefox inside a sandbox, but also offers a better
-# private browsing mode if the user asks for it.
+# If trying to browse the web in private, start Firefox inside a sandbox with a
+# new profile and home directory.
+#
+# @TODO: Configure and move a started profile so we don't have to lose time
+# configuring extensions, the browser, and whatnot.
 if [[ "${1:-}" == '--private' ]]; then
   temporary_profile_directory="$(mktemp --directory --quiet)"
   readonly temporary_profile_directory
+
   firejail \
     --quiet \
     --name='Firefox (Private Window)' \
-    --dns=127.0.5.3 \
+    --env=name='LD_PRELOAD=/usr/lib64/libhardened_malloc.so' \
     --apparmor \
     --seccomp \
+    --restrict-namespaces \
+    --caps.drop=all \
     --novideo \
-    --private="$temporary_profile_directory" \
+    --nonewprivs \
+    --nou2f \
+    --machine-id \
+    --private="${temporary_profile_directory}" \
     --private-tmp \
     --private-cache \
+    --private-dev \
+    --private-cwd \
     --profile='/etc/firejail/firefox.profile' \
-    /usr/bin/firefox --no-remote --private-window "$@"
+    /usr/bin/firefox --no-remote --private-window
 else
-  firejail \
-    --name='Firefox' \
-    --dns=127.0.5.3 \
-    --apparmor \
-    --seccomp \
-    --profile='/etc/firejail/firefox.profile' \
-    /usr/bin/firefox "$@"
+  /usr/bin/firefox "${@}"
 fi
 
 # All was well.
