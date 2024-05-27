@@ -10,9 +10,13 @@
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Use bash's "unofficial strict mode".
-set -o errexit -o nounset -o errtrace -o pipefail
+# Configure bash to work in "strict mode" to make it more robust, reliable and
+# maintainable, like some other languages.
+set -o errexit -o errtrace -o pipefail -o nounset
+shopt -s nullglob
+unset CDPATH
 IFS=$'\n\t'
+LC_ALL='C'
 
 # Remove credentials from memory for GnuPG, SSH, sudo, and 1Password.
 gpg-connect-agent --quiet reloadagent /bye > '/dev/null' 2>&1
@@ -25,17 +29,13 @@ if pgrep 'aerc' > '/dev/null' 2>&1; then
   pkill --signal TERM 'aerc'
 fi
 
-# Switch to an empty workspace before locking the screen. Skip if in Wayland.
-if [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
-  available_workspaces="$(wmctrl -d | wc --lines)"
-  readonly available_workspaces
-  wmctrl -s 4 "$(( available_workspaces - 1 ))"
-fi
+# Switch to an empty workspace in Sway before locking the screen.
+available_workspaces="$(swaymsg -t get_workspaces | jq length)"
+readonly available_workspaces
+swaymsg "workspace $(( available_workspaces + 1 ))"
 
-# Lock the screen by sending a D-Bus message to the GNOME screen saver handler.
-# Does not work when quoted, for some reason.
-dbus-send --dest=org.gnome.ScreenSaver /org/gnome/ScreenSaver \
-  --type=method_call org.gnome.ScreenSaver.Lock
+# Lock the screen by using swaylock.
+swaylock --daemonize
 
 # All was well.
 exit 0
