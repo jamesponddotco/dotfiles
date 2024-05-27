@@ -10,18 +10,18 @@
 # License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
 #
 
-# Use bash's "unofficial strict mode".
-set -o errexit -o nounset -o errtrace -o pipefail
-IFS=$'\n\t'
-
-# Force all output to use the simplest locale.
-LC_ALL='C'
-readonly LC_ALL
-
-# Increase verbosity if we are running tests.
-if [[ "${BASH_OUTPUT:-quiet}" == 'verbose' ]]; then
+# Increase verbosity when running tests on itself or troubleshooting issues.
+if [[ "${SCRIPT_OUTPUT:-'normal'}" == 'verbose' ]]; then
   set -o xtrace
 fi
+
+# Configure bash to work in "strict mode" to make it more robust, reliable and
+# maintainable, like some other languages.
+set -o errexit -o errtrace -o pipefail -o nounset
+shopt -s nullglob
+unset CDPATH
+IFS=$'\n\t'
+LC_ALL='C'
 
 # If a session toke file already exists, grab and save it. Otherwise, create a
 # placeholder file with tight permissions.
@@ -65,8 +65,8 @@ fi
 # CLI with whatever the user asked, but if the session has expired already or
 # does not exist, use pinentry-curses to ask for the master password and
 # generate a new working session.
-if op --session "${session_token:-}" get account > '/dev/null' 2>&1; then
-  op --session "${session_token}" --cache "$@"
+if op --session "${session_token:-}" account get > '/dev/null' 2>&1; then
+  op --session "${session_token}" "$@" | tr -d '\n'
 else
   # Check to see if the configuration file for op exists.
   if [[ -f "${HOME}/.op/config" && -s "${HOME}/.op/config" ]]; then
@@ -100,11 +100,11 @@ else
   # file we created earlier. With all the precautions we took above, this
   # should be safeish.
   printf '%s' "${master_password}" \
-    | op signin --raw "${account_shorthand}" > "${token_file}"
+    | op signin --raw --account "${account_shorthand}" > "${token_file}"
 
   # Call 1Password CLI and pass whatever the user sent to it.
   session_token="$(cat "${token_file}")"
-  op --session "${session_token}" --cache "$@"
+  op --session "${session_token}" "$@" | tr -d '\n'
 fi
 
 # All was well.
