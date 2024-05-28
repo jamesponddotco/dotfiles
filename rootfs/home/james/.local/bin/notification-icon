@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+dnd="$(swaync-client --get-dnd)"
+notifications="$(swaync-client --count)"
+
+if [[ "${dnd}" == "false" ]]; then
+  if [[ "${notifications}" -gt 0 ]]; then
+    printf '%s/.local/share/icons/Adwaita/notifications-new-symbolic.svg' "${HOME}"
+  else
+    printf '%s/.local/share/icons/Adwaita/notifications-symbolic.svg' "${HOME}"
+  fi
+else
+  printf '%s/.local/share/icons/Adwaita/notifications-disabled-symbolic.svg' "${HOME}"
+fi
+
+# All was well.
+exit 0

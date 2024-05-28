@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+if nmcli connection show --active | grep 'wifi' > '/dev/null' 2>&1; then
+  signal="$(nmcli dev wifi list | awk '/*/ {print $8}')"
+  network="$(nmcli dev wifi list | awk '/*/ {print $3}')"
+  
+  if [[ "${signal}" -eq 100 ]]; then
+    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-excellent-symbolic.svg\n' "${HOME}"
+  elif [[ "${signal}" -ge 75 ]]; then
+    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-good-symbolic.svg\n' "${HOME}"
+  elif [[ "${signal}" -ge 50 ]]; then
+    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-ok-symbolic.svg\n' "${HOME}"
+  else
+    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-weak-symbolic.svg\n' "${HOME}"
+  fi
+
+  printf '%s (%s%%)' "${network}" "${signal}"
+else
+  printf '%s/.local/share/icons/Adwaita/network-wireless-offline-symbolic.svg' "${HOME}"
+fi

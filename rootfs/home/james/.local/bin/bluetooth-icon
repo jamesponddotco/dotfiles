@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+state="$(bluetoothctl show | awk '/PowerState/ {printf $2}')"
+
+if [[ "${state}" == "on" ]]; then
+  printf '%s/.local/share/icons/Adwaita/bluetooth-active-symbolic.svg' "${HOME}"
+else
+  printf '%s/.local/share/icons/Adwaita/bluetooth-disabled-symbolic.svg' "${HOME}"
+fi
+
+# All was well.
+exit 0

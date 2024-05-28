@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+charge="$(upower -i '/org/freedesktop/UPower/devices/battery_BAT0' | awk '/percentage/ { sub("%", "", $2); printf $2 }')"
+state="$(upower -i '/org/freedesktop/UPower/devices/battery_BAT0' | awk '/state/ {printf $2}')"
+
+if [[ "${state}" == "discharging" ]]; then
+  if [[ "${charge}" -ge 90 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-100-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 80 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-90-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 70 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-80-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 60 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-70-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 50 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-60-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 40 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-50-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 30 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-40-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 20 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-30-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 10 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-20-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 5 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-10-symbolic.svg\n' "${HOME}"
+  else
+    printf '%s/.local/share/icons/Adwaita/battery-level-0-symbolic.svg\n' "${HOME}"
+  fi
+else
+  if [[ "${charge}" -ge 90 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-100-charged-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 80 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-90-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 70 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-80-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 60 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-70-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 50 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-60-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 40 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-50-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 30 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-40-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 20 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-30-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 10 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-20-charging-symbolic.svg\n' "${HOME}"
+  elif [[ "${charge}" -ge 5 ]]; then
+    printf '%s/.local/share/icons/Adwaita/battery-level-10-charging-symbolic.svg\n' "${HOME}"
+  else
+    printf '%s/.local/share/icons/Adwaita/battery-level-0-charging-symbolic.svg\n' "${HOME}"
+  fi
+fi
+
+printf '%s%%' "${charge}"
+
+# All was well.
+exit 0

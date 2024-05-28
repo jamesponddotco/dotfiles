@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+volume="$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{ sub("%", "", $5); printf $5 }')"
+
+if [[ "${volume}" -eq 0 ]]; then
+  printf '%s/.local/share/icons/Adwaita/audio-volume-muted-symbolic.svg\n' "${HOME}"
+elif [[ "${volume}" -lt 33 ]]; then
+  printf '%s/.local/share/icons/Adwaita/audio-volume-low-symbolic.svg\n' "${HOME}"
+elif [[ "${volume}" -lt 66 ]]; then 
+  printf '%s/.local/share/icons/Adwaita/audio-volume-medium-symbolic.svg\n' "${HOME}"
+elif [[ "${volume}" -lt 101 ]]; then
+  printf '%s/.local/share/icons/Adwaita/audio-volume-high-symbolic.svg\n' "${HOME}"
+else
+  printf '%s/.local/share/icons/Adwaita/audio-volume-overamplified-symbolic.svg\n' "${HOME}"
+fi
+
+printf '%s%%' "${volume}"
+
+# All was well.
+exit 0
