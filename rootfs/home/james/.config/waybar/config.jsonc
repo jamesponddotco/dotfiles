@@ -1,0 +1,67 @@
+{
+    "spacing": 0,
+    "ipc": true,
+    "modules-left": [
+        "sway/workspaces"
+    ],
+    "modules-center": [
+        "clock",
+        "image#notifications"
+    ],
+    "modules-right": [
+        "tray",
+        "image#wifi",
+        "image#bluetooth",
+        "image#volume",
+        "image#battery"
+    ],
+    "sway/workspaces": {
+		"all-outputs": true,
+		"format": "{icon}",
+		"format-icons": {
+			"urgent": "",
+			"focused": "",
+			"default": ""
+		}
+	},
+    "clock": {
+        "format": "{:%a %d,  %H:%M}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>"
+    },
+    "image#notifications": {
+      "exec": "~/.local/bin/notification-icon",
+      "size": 16,
+      "interval": 1,
+      "on-click": "swaync-client -t -sw",
+      "on-click-right": "swaync-client -d -sw"
+    },
+    "tray": {
+        "icon-size": 16
+    },
+	"image#wifi": {
+	  "exec": "~/.local/bin/wifi-icon",
+	  "size": 16,
+	  "interval": 60,
+	  "on-click": "XDG_CURRENT_DESKTOP='GNOME' gnome-control-center wifi"
+	},
+	"image#bluetooth": {
+	  "exec": "~/.local/bin/bluetooth-icon",
+	  "size": 16,
+	  "interval": 30,
+	  "on-click": "blueman-manager"
+	},
+	"image#volume": {
+	  "exec": "~/.local/bin/volume-icon",
+	  "size": 16,
+	  "interval": 1,
+	  "on-scroll-up": "pactl set-sink-volume @DEFAULT_SINK@ +1%",
+	  "on-scroll-down": "pactl set-sink-volume @DEFAULT_SINK@ -1%",
+	  "on-click": "XDG_CURRENT_DESKTOP='GNOME' gnome-control-center sound"
+	},
+	"image#battery": {
+	  "exec": "~/.local/bin/battery-icon",
+	  "size": 16,
+	  "interval": 30,
+	  "on-click": "XDG_CURRENT_DESKTOP='GNOME' gnome-control-center power"
+	}
+}
