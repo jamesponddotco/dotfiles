@@ -1,5 +1,5 @@
 * {
-	font-family: "Cantarell Nerd Font";
+	font-family: Cantarell, sans-serif;
 	font-size: 16px;
 	font-weight: 700;
 }
@@ -34,11 +34,11 @@ tooltip label {
 }
 
 #workspaces button.focused {
-  color: #fff;
+	color: #fff;
 }
 
 #clock {
-  padding-right: 10px;
+	padding-right: 10px;
 }
 
 #tray {
