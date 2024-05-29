@@ -36,10 +36,19 @@
 	color: #cecece;
 }
 
+.control-center .control-center-list .notification .notification-default-action:hover,
+.control-center .control-center-list .notification .notification-action:hover {
+	background-color: #515151;
+}
+
 .widget-title > button {
 	border: none;
 	background: #474747;
 	color: #e0e0e0;
+}
+
+.widget-title > button:hover {
+	background: #515151;
 }
 
 .widget-dnd > switch {
@@ -48,7 +57,7 @@
 }
 
 .widget-dnd > switch:checked {
-	background: @bg-selected;
+	background: #3584e4;
 }
 
 .widget-dnd > switch slider {
