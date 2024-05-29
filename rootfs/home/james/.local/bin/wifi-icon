@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
 
+icon_path="${HOME}/.local/share/icons/Adwaita/"
+
 if nmcli connection show --active | grep 'wifi' > '/dev/null' 2>&1; then
-  signal="$(nmcli dev wifi list | awk '/*/ {print $8}')"
-  network="$(nmcli dev wifi list | awk '/*/ {print $3}')"
+  signal="$(nmcli --fields 'IN-USE,SSID,SIGNAL' dev wifi list \
+    | awk '/*/ {print $3}')"
+  network="$(nmcli --fields 'IN-USE,SSID,SIGNAL' dev wifi list \
+    | awk '/*/ {print $2}')"
   
   if [[ "${signal}" -eq 100 ]]; then
-    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-excellent-symbolic.svg\n' "${HOME}"
+    icon='network-wireless-signal-excellent-symbolic.svg'
   elif [[ "${signal}" -ge 75 ]]; then
-    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-good-symbolic.svg\n' "${HOME}"
+    icon='network-wireless-signal-good-symbolic.svg'
   elif [[ "${signal}" -ge 50 ]]; then
-    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-ok-symbolic.svg\n' "${HOME}"
+    icon='network-wireless-signal-ok-symbolic.svg'
   else
-    printf '%s/.local/share/icons/Adwaita/network-wireless-signal-weak-symbolic.svg\n' "${HOME}"
+    icon='network-wireless-signal-weak-symbolic.svg'
   fi
 
-  printf '%s (%s%%)' "${network}" "${signal}"
+  printf '%s\n%s (%s%%)' "${icon_path}${icon}" "${network}" "${signal}"
 else
-  printf '%s/.local/share/icons/Adwaita/network-wireless-offline-symbolic.svg' "${HOME}"
+  icon='network-wireless-offline-symbolic.svg'
+
+  printf '%s\n' "${icon_path}${icon}"
 fi
+
+# All was well.
+exit 0

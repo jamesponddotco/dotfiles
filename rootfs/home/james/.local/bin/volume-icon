@@ -1,20 +1,22 @@
 #!/usr/bin/env bash
 
-volume="$(pactl get-sink-volume @DEFAULT_SINK@ | awk '{ sub("%", "", $5); printf $5 }')"
+volume="$(pactl get-sink-volume @DEFAULT_SINK@ \
+  | awk '{ sub("%", "", $5); printf $5 }')"
+icon_path="${HOME}/.local/share/icons/Adwaita/"
 
 if [[ "${volume}" -eq 0 ]]; then
-  printf '%s/.local/share/icons/Adwaita/audio-volume-muted-symbolic.svg\n' "${HOME}"
+  icon='audio-volume-muted-symbolic.svg'
 elif [[ "${volume}" -lt 33 ]]; then
-  printf '%s/.local/share/icons/Adwaita/audio-volume-low-symbolic.svg\n' "${HOME}"
+  icon='audio-volume-low-symbolic.svg'
 elif [[ "${volume}" -lt 66 ]]; then 
-  printf '%s/.local/share/icons/Adwaita/audio-volume-medium-symbolic.svg\n' "${HOME}"
+  icon='audio-volume-medium-symbolic.svg'
 elif [[ "${volume}" -lt 101 ]]; then
-  printf '%s/.local/share/icons/Adwaita/audio-volume-high-symbolic.svg\n' "${HOME}"
+  icon='audio-volume-high-symbolic.svg'
 else
-  printf '%s/.local/share/icons/Adwaita/audio-volume-overamplified-symbolic.svg\n' "${HOME}"
+  icon='audio-volume-overamplified-symbolic.svg'
 fi
 
-printf '%s%%' "${volume}"
+printf '%s\n%s%%' "${icon_path}${icon}" "${volume}"
 
 # All was well.
 exit 0
