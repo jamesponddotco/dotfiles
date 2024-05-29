@@ -1,0 +1,22 @@
+[
+  {
+    "label": "Lock",
+    "exec": "flush-lock",
+    "icon": "/home/james/.local/share/icons/Adwaita/system-lock-screen-symbolic.svg"
+  },
+  {
+    "label": "Logout",
+    "exec": "swaymsg exit",
+    "icon": "/home/james/.local/share/icons/Adwaita/system-log-out-symbolic.svg"
+  },
+  {
+    "label": "Reboot",
+    "exec": "systemctl reboot",
+    "icon": "/home/james/.local/share/icons/Adwaita/system-reboot-symbolic.svg"
+  },
+  {
+    "label": "Shutdown",
+    "exec": "systemctl -i poweroff",
+    "icon": "/home/james/.local/share/icons/Adwaita/system-shutdown-symbolic.svg"
+  }
+]
