@@ -41,7 +41,7 @@
 	"image#wifi": {
 	  "exec": "~/.local/bin/wifi-icon",
 	  "size": 16,
-	  "interval": 60,
+	  "interval": 30,
 	  "on-click": "XDG_CURRENT_DESKTOP='GNOME' gnome-control-center wifi"
 	},
 	"image#bluetooth": {
