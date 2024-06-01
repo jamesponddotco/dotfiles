@@ -36,7 +36,8 @@
       "on-click-right": "swaync-client -d -sw"
     },
     "tray": {
-        "icon-size": 16
+        "icon-size": 16,
+        "spacing": 10
     },
 	"image#wifi": {
 	  "exec": "~/.local/bin/wifi-icon",
