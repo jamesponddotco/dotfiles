@@ -37,6 +37,10 @@ tooltip label {
 	color: #fff;
 }
 
+#tray menu {
+	font-weight: 400;
+}
+
 #clock,
 #tray,
 #image {
