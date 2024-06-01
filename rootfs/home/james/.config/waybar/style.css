@@ -37,14 +37,8 @@ tooltip label {
 	color: #fff;
 }
 
-#clock {
-	padding-right: 10px;
-}
-
-#tray {
-	padding-right: 10px;
-}
-
+#clock,
+#tray,
 #image {
 	padding-right: 10px;
 }
