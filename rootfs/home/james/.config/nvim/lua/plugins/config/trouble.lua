@@ -9,4 +9,4 @@ trouble.setup {
   use_diagnostic_signs = true,
 }
 
-vim.keymap.set("n", "<C-t>", function() require("trouble").toggle() end)
+vim.keymap.set("n", "<C-t>", function() require("trouble").toggle("diagnostics") end)
