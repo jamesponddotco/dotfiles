@@ -1,0 +1,5 @@
+x-ms-reactions: disallow
+{{- with .Signature }}
+
+{{.}}
+{{- end -}}
