@@ -127,6 +127,7 @@ lspconfig.intelephense.setup{
         "pspell",
         "pthreads",
         "radius",
+        "random",
         "rar",
         "rdkafka",
         "readline",
