@@ -4,7 +4,7 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 -- Ensure an in-memory directory exists for the 'undo' feature.
-local undo_dir = '/dev/shm/nvim/undo'
+local undo_dir = '/tmp/nvim/undo'
 if vim.fn.isdirectory(undo_dir) == 0 then
   vim.fn.mkdir(undo_dir, 'p')
 end
@@ -33,9 +33,6 @@ opt.wildmode = 'longest:full'
 opt.wildoptions = 'pum'
 opt.completeopt = 'menu,menuone,noselect'
 
-opt.termguicolors = true
-opt.background = 'dark'
-
 opt.expandtab = true
 opt.tabstop = 4
 opt.softtabstop = 0
@@ -62,5 +59,3 @@ opt.mouse = 'a'
 opt.tm = 500
 opt.colorcolumn = { 72, 80, 120 }
 opt.textwidth = 79
-
-

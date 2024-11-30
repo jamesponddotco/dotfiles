@@ -32,11 +32,8 @@ for _, plugin in pairs(plugins) do
   vim.g['loaded_' .. plugin] = 1
 end
 
--- Safely require impatient plugin.
-pcall (require, 'impatient')
-
 -- Require core Neovim options.
 require ('core')
 
--- Require plugin options.
-require ('plugins')
+-- Require lazy.nvim package manager.
+require ('core.lazy')
