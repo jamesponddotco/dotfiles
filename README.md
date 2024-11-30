@@ -3,14 +3,6 @@
 This repository holds a collection of configuration files for my
 workstations and servers.
 
-![Screenshot of a several applications showing the consistency of the
-color scheme.](screenshot.png)
-
-As far as looks goes, imagine [GNOME Shell](https://www.gnome.org/) and
-[Sway](https://swaywm.org/) had a baby. I try to stick to the
-[Adwaita](https://en.wikipedia.org/wiki/Adwaita_(design_language)) color
-scheme for consistency, but it's not always possible to do so.
-
 ## Contributing
 
 While these are personal configuration files, anyone can help make them
