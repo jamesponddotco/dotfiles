@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+
+# Set bash to "strict mode" to make it more robust, reliable and maintainable.
+#
+set -o errexit -o errtrace -o pipefail -o nounset
+shopt -s nullglob
+unset CDPATH
+IFS=$'\n\t'
+LC_ALL='C'
+
+display_usage() {
+  printf "USAGE:\n"
+  printf "replicator [-b|--backup </path/to/repo/>] [-p|--prune \
+</path/to/repo/>] [-c|--check </path/to/repo/>] [-h|--help]\n"
+}
+
+set_environment() {
+  RESTIC_REPOSITORY="${2}"
+  export RESTIC_REPOSITORY
+  readonly RESTIC_REPOSITORY
+
+  RESTIC_PASSWORD="$(security find-generic-password -w \
+    -s 'restic-repository-password')"
+  export RESTIC_PASSWORD
+  readonly RESTIC_PASSWORD
+
+  RESTIC_REST_USERNAME="${USER}"
+  export RESTIC_REST_USERNAME
+  readonly RESTIC_REST_USERNAME
+
+  RESTIC_REST_PASSWORD="$(security find-generic-password -w \
+    -s 'restic-rest-password')"
+  export RESTIC_REST_PASSWORD
+  readonly RESTIC_REST_PASSWORD
+}
+
+run_backup() {
+  restic backup \
+    --files-from "${XDG_CONFIG_HOME}/restic/include" \
+    --exclude-file "${XDG_CONFIG_HOME}/restic/exclude" \
+    --exclude-caches
+}
+
+run_backup_volume() {
+  restic backup \
+    --files-from "${XDG_CONFIG_HOME}/restic/include-volume" \
+    --exclude-file "${XDG_CONFIG_HOME}/restic/exclude-volume" \
+    --pack-size 128 \
+    --exclude-caches
+}
+
+prune_repository() {
+  restic forget \
+    --keep-last 20 \
+    --keep-daily 7 \
+    --keep-weekly 4 \
+    --keep-monthly 3 \
+    --keep-yearly 1 \
+    --prune \
+    --cleanup-cache
+}
+
+check_repository() {
+  restic check
+}
+
+list_snapshots() {
+  restic snapshots
+}
+
+# Call our functions.
+case "${1:-}" in
+  -b|--backup)
+    set_environment "${@}"
+    run_backup
+    ;;
+  -B|--backup-volume)
+    set_environment "${@}"
+    run_backup_volume
+    ;;
+  -p|--prune)
+    set_environment "${@}"
+    prune_repository
+    ;;
+  -c|--check)
+    set_environment "${@}"
+    check_repository
+    ;;
+  -l|--list)
+    set_environment "${@}"
+    list_snapshots
+    ;;
+  -h|--help)
+    display_usage
+    ;;
+  *)
+    display_usage
+    exit 22
+esac
+
+# All was well.
+exit 0
