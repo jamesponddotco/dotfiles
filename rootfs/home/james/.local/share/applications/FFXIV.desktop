@@ -1,8 +1,0 @@
-[Desktop Entry]
-Name=FFXIV
-Exec=/home/james/.local/bin/ffxiv-launcher
-Type=Application
-Terminal=false
-Categories=Games;
-Icon=/home/james/.local/share/icons/ffxiv.png
-StartupWMClass=FFXIV
