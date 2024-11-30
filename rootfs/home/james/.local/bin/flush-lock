@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-#
-# Script Name: Flush 'n' Lock
-# Script URL: https://git.sr.ht/~jamesponddotco/dotfiles
-# Description: Flush credentials from memory and lock the computer screen.
-# Version: 1.0.0
-# Author: James Pond
-# Author URL: https://jamespond.co/
-# License: European Union Public License 1.2 or later
-# License URI: https://joinup.ec.europa.eu/collection/eupl/eupl-text-11-12
-#
 
 # Configure bash to work in "strict mode" to make it more robust, reliable and
 # maintainable, like some other languages.
@@ -22,20 +12,9 @@ LC_ALL='C'
 gpg-connect-agent --quiet reloadagent /bye > '/dev/null' 2>&1
 ssh-add -q -D
 sudo --remove-timestamp
-1p signout
 
-# Ask aerc to exit gracefully, as it has its own GnuPG keychain implementation.
-if pgrep 'aerc' > '/dev/null' 2>&1; then
-  pkill --signal TERM 'aerc'
-fi
-
-# Switch to an empty workspace in Sway before locking the screen.
-available_workspaces="$(swaymsg -t get_workspaces | jq length)"
-readonly available_workspaces
-swaymsg "workspace $(( available_workspaces + 1 ))"
-
-# Lock the screen by using swaylock.
-swaylock --daemonize
+# Put the computer to sleep and lock the screen.
+pmset displaysleepnow
 
 # All was well.
 exit 0
