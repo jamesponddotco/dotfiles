@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # Set bash to "strict mode" to make it more robust, reliable and maintainable.
-#
 set -o errexit -o errtrace -o pipefail -o nounset
 shopt -s nullglob
 unset CDPATH
