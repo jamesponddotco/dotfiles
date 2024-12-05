@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+# Set bash to "strict mode" to make it more robust, reliable and maintainable.
+set -o errexit -o errtrace -o pipefail -o nounset
+shopt -s nullglob
+unset CDPATH
+IFS=$'\n\t'
+LC_ALL='C'
+
+checks() {
+  if ! command -v curl >/dev/null 2>&1; then
+    printf 'curl is not installed.\n'
+    exit 1
+  fi
+
+  if ! command -v HandBrakeCLI >/dev/null 2>&1; then
+    printf 'HandBrakeCLI is not installed.\n'
+    exit 1
+  fi
+
+  if ! command -v security >/dev/null 2>&1; then
+    printf 'security is not installed.\n'
+    exit 1
+  fi
+
+  if [[ -z "${1}" ]]; then
+    printf 'Video input file missing.\n'
+    exit 1
+  fi
+}
+
+main() {
+  mkdir -p '/tmp/cpvid'
+
+  local video_filename
+  video_filename="$(acopw random --length 16 --numbers --lowercase)"
+  readonly video_filename
+
+  HandBrakeCLI --input "${1}" \
+    --output "/tmp/cpvid/${video_filename}.mp4" --encoder 'x264' \
+    --quality 23 --maxHeight 1080 --maxWidth 1920 --turbo \
+    --optimize > '/dev/null' 2>&1
+
+  local access_key
+  access_key="$(security find-generic-password -w -s \
+    'cpvid-access-key')"
+  readonly access_key
+
+  curl \
+    --url "https://storage.bunnycdn.com/cpviddotsh/${video_filename}.mp4" \
+    --tlsv1.3 \
+    --proto '=https' \
+    --silent \
+    --output '/dev/null' \
+    --request 'PUT' \
+    --header "AccessKey: ${access_key}" \
+    --upload-file "/tmp/cpvid/${video_filename}.mp4"
+
+  rm -rf '/tmp/cpvid'
+
+  printf 'https://v.cpvid.sh/%s\n' "${video_filename}.mp4"
+}
+
+checks "${1}"
+main "${1}"
+
+# All was well.
+exit 0
