@@ -14,7 +14,10 @@ return {
       python = true,
       rust = true,
       sh = true,
+      bash = true,
       sql = true,
+      scd = true,
+      conf = true,
     }
   end
 }
