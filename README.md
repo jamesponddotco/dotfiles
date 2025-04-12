@@ -1,13 +1,12 @@
 # `dotfiles`
 
 This repository holds a collection of configuration files for my
-workstations and servers.
+personal laptop.
 
 ## Contributing
 
 While these are personal configuration files, anyone can help make them
-better. I'm particularly interested in more configuration files that
-make more applications follow the Adwaita color scheme.
+better.
 
 Send patches on the [mailing
 list](https://lists.sr.ht/~jamesponddotco/public-inbox) and report bugs
