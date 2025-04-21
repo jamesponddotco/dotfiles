@@ -8,6 +8,6 @@ return {
       use_diagnostic_signs = true,
     }
 
-    vim.keymap.set("n", "<C-t>", function() require("trouble").toggle("diagnostics") end)
+    vim.keymap.set("n", "<C-d>", function() require("trouble").toggle("diagnostics") end)
   end
 }
