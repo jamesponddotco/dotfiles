@@ -1,0 +1,211 @@
+# =============================================================================
+# Neovim Color Scheme for aerc
+# Based on Neovim's default dark color palette
+# =============================================================================
+#
+# Palette Reference:
+# ------------------
+# Background:      #14161b (NvimDarkGray2)
+# Surface:         #2c2e33 (NvimDarkGray3)
+# Selection:       #4f5258 (NvimDarkGray4)
+# Foreground:      #e0e2ea (NvimLightGray2)
+# Muted:           #c4c6cd (NvimLightGray3)
+# Subtle:          #9b9ea4 (NvimLightGray4)
+#
+# Red:             #ffc0b9 (NvimLightRed)
+# Green:           #b3f6c0 (NvimLightGreen)
+# Yellow:          #fce094 (NvimLightYellow)
+# Blue:            #a6dbff (NvimLightBlue)
+# Magenta:         #ffcaff (NvimLightMagenta)
+# Cyan:            #8cf8f7 (NvimLightCyan)
+# =============================================================================
+
+# Reset all styles to start fresh
+*.default = true
+*.normal = true
+
+# -----------------------------------------------------------------------------
+# Base Styles
+# -----------------------------------------------------------------------------
+default.fg = #e0e2ea
+default.bg = #14161b
+
+# Status messages
+error.fg = #ffc0b9
+error.bold = true
+
+warning.fg = #fce094
+warning.bold = true
+
+success.fg = #b3f6c0
+success.bold = true
+
+# UI Chrome
+title.fg = #14161b
+title.bg = #a6dbff
+title.bold = true
+
+header.fg = #a6dbff
+header.bold = true
+
+border.bg = #2c2e33
+border.fg = #4f5258
+
+# -----------------------------------------------------------------------------
+# Statusline
+# -----------------------------------------------------------------------------
+statusline_default.fg = #e0e2ea
+statusline_default.bg = #2c2e33
+
+statusline_error.fg = #ffc0b9
+statusline_error.bg = #2c2e33
+statusline_error.bold = true
+
+statusline_success.fg = #b3f6c0
+statusline_success.bg = #2c2e33
+statusline_success.bold = true
+
+# -----------------------------------------------------------------------------
+# Message List
+# -----------------------------------------------------------------------------
+msglist_default.fg = #c4c6cd
+
+msglist_unread.fg = #e0e2ea
+msglist_unread.bold = true
+
+msglist_read.fg = #9b9ea4
+
+msglist_flagged.fg = #fce094
+msglist_flagged.bold = true
+
+msglist_deleted.fg = #ffc0b9
+msglist_deleted.dim = true
+
+msglist_marked.fg = #14161b
+msglist_marked.bg = #8cf8f7
+
+msglist_result.fg = #fce094
+msglist_result.bold = true
+
+msglist_answered.fg = #b3f6c0
+
+msglist_forwarded.fg = #a6dbff
+
+msglist_gutter.bg = #14161b
+
+msglist_pill.fg = #14161b
+msglist_pill.bg = #a6dbff
+
+msglist_thread_folded.fg = #ffcaff
+
+msglist_thread_context.fg = #9b9ea4
+msglist_thread_context.dim = true
+
+msglist_thread_orphan.fg = #c4c6cd
+msglist_thread_orphan.italic = true
+
+# -----------------------------------------------------------------------------
+# Directory List
+# -----------------------------------------------------------------------------
+dirlist_default.fg = #e0e2ea
+
+dirlist_unread.fg = #e0e2ea
+dirlist_unread.bold = true
+
+dirlist_recent.fg = #8cf8f7
+
+# -----------------------------------------------------------------------------
+# Part Switcher (Message Viewer attachments)
+# -----------------------------------------------------------------------------
+part_switcher.bg = #2c2e33
+
+part_filename.fg = #e0e2ea
+
+part_mimetype.fg = #a6dbff
+
+# -----------------------------------------------------------------------------
+# Completion Menu
+# -----------------------------------------------------------------------------
+completion_default.fg = #e0e2ea
+completion_default.bg = #2c2e33
+
+completion_description.fg = #9b9ea4
+completion_description.bg = #2c2e33
+completion_description.dim = true
+
+completion_gutter.bg = #2c2e33
+
+completion_pill.fg = #14161b
+completion_pill.bg = #a6dbff
+
+# -----------------------------------------------------------------------------
+# Tab Bar
+# -----------------------------------------------------------------------------
+tab.fg = #e0e2ea
+tab.bg = #2c2e33
+
+# -----------------------------------------------------------------------------
+# Selector Widget
+# -----------------------------------------------------------------------------
+selector_default.fg = #e0e2ea
+
+selector_focused.fg = #14161b
+selector_focused.bg = #a6dbff
+selector_focused.bold = true
+
+selector_chooser.bold = true
+
+# -----------------------------------------------------------------------------
+# Miscellaneous UI
+# -----------------------------------------------------------------------------
+stack.fg = #e0e2ea
+
+spinner.fg = #8cf8f7
+
+# -----------------------------------------------------------------------------
+# Selected State Modifiers
+# -----------------------------------------------------------------------------
+*.selected.bg = #4f5258
+*.selected.fg = #e0e2ea
+*.selected.bold = true
+
+# Override for marked messages (keep distinct when selected)
+msglist_marked.selected.bg = #007373
+msglist_marked.selected.fg = #e0e2ea
+
+# =============================================================================
+# Viewer Section - Colorize filter styles
+# =============================================================================
+[viewer]
+
+url.fg = #a6dbff
+url.underline = true
+
+header.fg = #a6dbff
+header.bold = true
+
+signature.fg = #9b9ea4
+signature.dim = true
+
+# Diff/Patch highlighting
+diff_meta.fg = #ffcaff
+diff_meta.bold = true
+
+diff_chunk.fg = #8cf8f7
+
+diff_chunk_func.fg = #8cf8f7
+diff_chunk_func.dim = true
+
+diff_add.fg = #b3f6c0
+
+diff_del.fg = #ffc0b9
+
+# Quoted text levels (alternating blue/cyan)
+quote_1.fg = #8cf8f7
+quote_2.fg = #a6dbff
+quote_3.fg = #8cf8f7
+quote_3.dim = true
+quote_4.fg = #a6dbff
+quote_4.dim = true
+quote_x.fg = #ffcaff
+quote_x.dim = true

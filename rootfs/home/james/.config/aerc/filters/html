@@ -1,22 +1,11 @@
 #!/usr/bin/env bash
 
-# Display HTML emails in aerc using w3m inside a Firejail sandbox to prevent
-# trackers and whatnot.
-temporary_profile_directory="$(mktemp --directory --quiet)"
-readonly temporary_profile_directory
-exec firejail \
-  --quiet \
-  --net='none' \
-  --dns='0.0.0.0' \
-  --apparmor \
-  --seccomp \
-  --private="$temporary_profile_directory" \
-  --private-tmp \
-  --private-cache \
-  --profile='/etc/firejail/w3m.profile' \
+sandbox-exec -p '(version 1)(allow default)(deny network*))' \
   w3m \
-    -T 'text/html' \
-	-cols "$(tput cols)" \
-	-dump \
-	-o display_image='false' \
-	-o display_link_number='true'
+  -I UTF-8 -O UTF-8 -T text/html \
+  -s -graph \
+  -o fold_textarea=true \
+  -o fold_line=true \
+  -o decode_url=true \
+  -o display_link=true \
+  -o display_image=false

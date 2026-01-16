@@ -1,0 +1,26 @@
+###############
+# Adwaita Dark
+###############
+
+# Reset all attributes.
+*.default=true
+*.normal=true
+
+tab.bg=#1e1e1e
+tab.fg=#ffffff
+tab.selected.bg=#343434
+tab.selected.fg=#fefefe
+tab.selected.bold=false
+
+border.bg=#1f1f1f
+border.fg=#1f1f1f
+
+dirlist_default.bg=#303030
+dirlist_default.fg=#fefefe
+dirlist_*.selected.bg=#454545
+
+msglist_*.bg=#1e1e1e
+msglist_*.selected.bg=#343434
+msglist_unread.bold=true
+
+statusline_default.bg=#303030
