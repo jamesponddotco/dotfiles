@@ -11,17 +11,18 @@
   email      = james@cipher.host
   signingkey = EBAF2BD5DEFD9721
 [sendemail]
-  smtpencryption = tls
-  smtpserver     = smtp.migadu.com
-  smtpuser       = james@cipher.host
-  smtpserverport = 465
-  smtpdomain     = cipher.host
-  annotate       = true
-  validate       = true
-  suppresscc     = self
-  signedoffbycc  = false
-  chainreplyto   = false
-  xmailer        = false
+  smtpencryption     = ssl
+  smtpserver         = smtp.migadu.com
+  smtpuser           = james@cipher.host
+  smtpserverport     = 465
+  smtpdomain         = cipher.host
+  annotate           = true
+  validate           = true
+  suppresscc         = self
+  signedoffbycc      = false
+  chainreplyto       = false
+  xmailer            = false
+  assume8bitEncoding = UTF-8
 [commit]
   gpgsign  = true
   template = ~/.config/git/message
