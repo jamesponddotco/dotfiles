@@ -14,6 +14,12 @@ return {
         'phpstan',
       },
       sh = { 'shellcheck' },
+      sql = { 'sqlfluff' },
+      systemd = { 'systemdlint' },
+      yaml = {
+        'yamllint',
+        'zizmor',
+      },
     }
 
     stylelint.args = {

@@ -1,23 +1,14 @@
 return {
   "neovim/nvim-lspconfig",
   config = function()
-    local lspconfig = require("lspconfig")
-    local capabilities = require('cmp_nvim_lsp').default_capabilities()
+    vim.lsp.enable("bashls")
+    vim.lsp.enable("golangci_lint_ls")
+    vim.lsp.enable("gopls")
+    vim.lsp.enable("intelephense")
+    vim.lsp.enable("rust_analyzer")
+    vim.lsp.enable("yamlls")
 
-    lspconfig.bashls.setup{
-      capabilities = capabilities,
-    }
-
-    lspconfig.golangci_lint_ls.setup{
-      capabilities = capabilities,
-    }
-
-    lspconfig.gopls.setup{
-      capabilities = capabilities,
-    }
-
-    lspconfig.intelephense.setup{
-      capabilities = capabilities,
+    vim.lsp.config("intelephense", {
       settings = {
         intelephense = {
           telemetry = {
@@ -193,11 +184,10 @@ return {
             "zookeeper",
           },
         },
-      },
-    }
+      }
+    })
 
-    lspconfig.rust_analyzer.setup{
-      capabilities = capabilities,
+    vim.lsp.config("rust_analyzer", {
       settings = {
         ["rust-analyzer"] = {
           diagnostics = {
@@ -215,6 +205,6 @@ return {
           },
         }
       }
-    }
+    })
   end
 }
